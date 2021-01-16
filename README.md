@@ -24,7 +24,16 @@
 
 ### Workspace
 
-Click [this link](workspace/README.md) to explore the workspace.
+启动Docker环境后, **Docker**中的/workspace目录, 会被映射到**当前Repo**中的workspace目录.
+
+使用该Workspace的方法如下:
+
+* 在**当前Repo的workspace**下, 启动VSCode, 编辑源代码:
+
+<img src="doc/development-environment.png" alt="Development Environment, Native VS Code in Mounting Point" width="100%">
+
+* 在**Docker /workspace**下, 进行编译. 具体的编译方法, 请参考作业0[Hello, KITTI](workspace/assignments/00-hello-kitti/README.md)
+
 
 ---
 
