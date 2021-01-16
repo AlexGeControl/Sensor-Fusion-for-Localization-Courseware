@@ -24,9 +24,15 @@
 
 ### Workspace
 
+#### 获取课程数据
+
+在第一次使用时, 需要将课程配套的KITTI数据下载至本地. 具体操作方法参考[Here](workspace/data/kitti/README.md)
+
+#### 开发, 编译与测试
+
 启动Docker环境后, **Docker**中的/workspace目录, 会被映射到**当前Repo**中的workspace目录.
 
-使用该Workspace的方法如下:
+使用该Workspace进行开发, 编译与测试的方法如下:
 
 * 在**当前Repo的workspace**下, 启动VSCode, 编辑源代码:
 
