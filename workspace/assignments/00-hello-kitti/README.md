@@ -4,6 +4,12 @@
 
 ---
 
+## Overview
+
+本作业旨在引导您验证环境配置的正确性, 熟悉课程教学框架.
+
+---
+
 ## Getting Started
 
 启动Docker后, 打开浏览器, 进入Web Workspace. 启动Terminator, 将两个Shell的工作目录切换如下:
