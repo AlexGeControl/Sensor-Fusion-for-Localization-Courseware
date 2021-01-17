@@ -16,6 +16,6 @@
 
 ## Contents
 
-* [基础版, 本地磁盘双系统](doc/external-disk/README.md)
+* [基础版, 本地磁盘双系统](doc/ubuntu-windows/Ubuntu双系统.pdf)
 
 * [进阶版, 外接硬盘安装](doc/external-disk/README.md)
