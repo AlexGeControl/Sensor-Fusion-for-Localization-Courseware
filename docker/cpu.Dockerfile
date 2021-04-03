@@ -1,5 +1,9 @@
 FROM ubuntu:18.04
 
+# ------ powered by Ge Yao, alexgecontrol@qq.com ------
+
+LABEL maintainer="alexgecontrol@qq.com"
+
 # ------ USER ROOT HAS BEEN ACTIVATED ------
 
 # use root for dependency installation:
@@ -67,58 +71,66 @@ RUN apt-fast update --fix-missing && \
         git mercurial subversion \
         # daemon & services:
         supervisor nginx \
+        # dev. tools:
+        terminator \
+        firefox \
         # potential image & rich text IO:
+        libsdl1.2-dev libsdl-net1.2-dev libsdl-image1.2-dev \
         lxde \
+        gnome-themes-standard \
         xvfb dbus-x11 x11-utils libxext6 libsm6 x11vnc \
         gtk2-engines-pixbuf gtk2-engines-murrine pinta ttf-ubuntu-font-family \
         mesa-utils libgl1-mesa-dri libxrender1 \
+        gnuplot \
         texlive-latex-extra \
-        # c++:
+        #
+        # general development:
+        #
+        # a. c++:
         gcc g++ \
         make cmake build-essential autoconf automake libtool \
-        libglib2.0-dev libboost-dev libboost-all-dev libtbb-dev \
-        # python 2:
-        python-pip python-dev python-tk \
-        # ROS melodic:
-        ros-melodic-desktop-full \
-        ros-melodic-rosbridge-server \
-        ros-melodic-tf2 ros-melodic-tf2-ros ros-melodic-tf2-sensor-msgs \
-        ros-melodic-teleop-twist-keyboard \
-        python-catkin-tools python-rosdep python-rosinstall python-rosinstall-generator python-wstool \
-        ninja-build \
-        # development common:
-        lua5.3 liblua5.3-dev libluabind-dev \
+        libglib2.0-dev libboost-dev libboost-all-dev \
+        libomp-dev libtbb-dev \
         libgoogle-glog-dev \
-        libsdl1.2-dev \
-        libsdl-image1.2-dev \
-        ros-melodic-ecl-threads \
-        ros-melodic-rviz-visual-tools \
-        ros-melodic-plotjuggler \ 
+        # b. Python 2:
+        python-pip python-dev python-tk \
+        # c. lua:
+        lua5.3 liblua5.3-dev libluabind-dev \
+        # 
         # numerical optimization:
+        # 
         coinor-libcoinutils-dev \
         coinor-libcbc-dev \
         libeigen3-dev \
         gfortran \
         libopenblas-dev liblapack-dev \
         libdw-dev libatlas-base-dev libsuitesparse-dev \
-        libmetis-dev \
-        # graph optimization -- https://github.com/RainerKuemmerle/g2o
-        # a. visualization:
-        libqt4-dev libqt4-opengl-dev \
-        qt5-default qt5-qmake qtdeclarative5-dev libqglviewer-dev-qt5 \
-        # b. numerical optimization:
         libcholmod3 libcxsparse3 \
+        libmetis-dev \
+        #
+        # 3D graphics:
+        #
+        freeglut3-dev \
+        libqt4-dev libqt4-opengl-dev \
+        qt5-default qt5-qmake \
+        qtdeclarative5-dev libqglviewer-dev-qt5 \
+        #
+        # ROS melodic:
+        # 
+        ros-melodic-desktop-full \
+        ros-melodic-ecl-threads \
+        ros-melodic-rosbridge-server \
+        ros-melodic-tf2 ros-melodic-tf2-ros ros-melodic-tf2-sensor-msgs \
+        ros-melodic-teleop-twist-keyboard \
+        ros-melodic-rviz-visual-tools \
+        ros-melodic-plotjuggler \ 
+        python-catkin-tools python-rosdep python-rosinstall python-rosinstall-generator python-wstool \
+        ninja-build \
         # imu:
         ros-melodic-imu-complementary-filter ros-melodic-imu-filter-madgwick ros-melodic-rviz-imu-plugin \
         # lidar:
         ros-melodic-laser-pipeline \
-        ros-melodic-perception-pcl \
-        # GUI tools:
-        freeglut3-dev \
-        gnuplot \
-        gnome-themes-standard \
-        terminator \
-        firefox && \
+        ros-melodic-perception-pcl && \
     apt-fast autoclean && \
     apt-fast autoremove && \
     rm -rf /var/lib/apt/lists/*
