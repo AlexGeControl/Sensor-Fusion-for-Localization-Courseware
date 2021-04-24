@@ -83,30 +83,23 @@ bool ICPSVDRegistration::ScanMatch(
     // init estimation:
     transformation_.setIdentity();
     
+    //
+    // TODO: first option -- implement all computing logic on your own
+    //
     // do estimation:
     int curr_iter = 0;
     while (curr_iter < max_iter_) {
-        // apply current estimation:
-        CloudData::CLOUD_PTR curr_input_source(new CloudData::CLOUD());
-        pcl::transformPointCloud(*transformed_input_source, *curr_input_source, transformation_);
+        // TODO: apply current estimation:
 
-        // get correspondence:
-        std::vector<Eigen::Vector3f> xs;
-        std::vector<Eigen::Vector3f> ys;
+        // TODO: get correspondence:
 
-        // do not have enough correspondence -- break:
-        if (GetCorrespondence(curr_input_source, xs, ys) < 3)
-            break;
+        // TODO: do not have enough correspondence -- break:
 
-        // update current transform:
-        Eigen::Matrix4f delta_transformation;
-        GetTransform(xs, ys, delta_transformation);
+        // TODO: update current transform:
 
-        // whether the transformation update is significant:
-        if (!IsSignificant(delta_transformation, trans_eps_))
-            break;
+        // TODO: whether the transformation update is significant:
 
-        transformation_ = delta_transformation * transformation_; 
+        // TODO: update transformation:
 
         ++curr_iter;
     }
@@ -127,35 +120,7 @@ size_t ICPSVDRegistration::GetCorrespondence(
 
     size_t num_corr = 0;
 
-    for (size_t i = 0; i < input_source->points.size(); ++i) {
-        std::vector<int> corr_ind;
-        std::vector<float> corr_sq_dis;
-        input_target_kdtree_->nearestKSearch(
-            input_source->at(i), 
-            1, 
-            corr_ind, corr_sq_dis
-        ); 
-
-        if (corr_sq_dis.at(0) > MAX_CORR_DIST_SQR)
-            continue;
-        
-        // add correspondence:
-        Eigen::Vector3f x(
-            input_target_->at(corr_ind.at(0)).x,
-            input_target_->at(corr_ind.at(0)).y,
-            input_target_->at(corr_ind.at(0)).z
-        );
-        Eigen::Vector3f y(
-            input_source->at(i).x,
-            input_source->at(i).y,
-            input_source->at(i).z
-        );
-
-        xs.push_back(x);
-        ys.push_back(y);
-
-        ++num_corr;
-    }
+    // TODO: set up point correspondence
 
     return num_corr;
 }
@@ -167,33 +132,15 @@ void ICPSVDRegistration::GetTransform(
 ) {
     const size_t N = xs.size();
 
-    // find centroids of mu_x and mu_y:
-    Eigen::Vector3f mu_x = Eigen::Vector3f::Zero();
-    Eigen::Vector3f mu_y = Eigen::Vector3f::Zero();
-    for (size_t i = 0; i < N; ++i) {
-        mu_x += xs.at(i);
-        mu_y += ys.at(i);
-    }
-    mu_x /= N; 
-    mu_y /= N;
+    // TODO: find centroids of mu_x and mu_y:
 
-    // build H:
-    Eigen::Matrix3f H = Eigen::Matrix3f::Zero();
-    for (size_t i = 0; i < N; ++i) {
-        H += (ys.at(i) - mu_y) * (xs.at(i) - mu_x).transpose();
-    }
+    // TODO: build H:
 
-    // solve R:
-    Eigen::JacobiSVD<Eigen::MatrixXf> svd(H, Eigen::ComputeThinU | Eigen::ComputeThinV);
-    Eigen::Matrix3f R = svd.matrixV() * svd.matrixU().transpose();
+    // TODO: solve R:
 
-    // solve t:
-    Eigen::Vector3f t = mu_x - R * mu_y;
+    // TODO: solve t:
 
-    // set output:
-    transformation_.setIdentity();
-    transformation_.block<3, 3>(0, 0) = R;
-    transformation_.block<3, 1>(0, 3) = t;
+    // TODO: set output:
 }
 
 bool ICPSVDRegistration::IsSignificant(
