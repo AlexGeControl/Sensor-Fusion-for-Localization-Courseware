@@ -50,25 +50,12 @@ bool SICPRegistration::ScanMatch(
     CloudData::CLOUD_PTR transformed_input_source(new CloudData::CLOUD());
     pcl::transformPointCloud(*input_source_, *transformed_input_source, predict_pose);
 
-    // format inputs for SICP:
-    Eigen::Matrix3Xd X(3, transformed_input_source->size()); 
-    Eigen::Matrix3Xd Y(3, input_target_->size());
+    //
+    // TODO: second option -- adapt existing implementation
+    //
+    // TODO: format inputs for SICP:
     
-    for(int i = 0; i < transformed_input_source->size(); i++)
-    {
-      X(0,i) = transformed_input_source->points[i].x;
-      X(1,i) = transformed_input_source->points[i].y;
-      X(2,i) = transformed_input_source->points[i].z;
-    }
-    for(int i = 0; i < input_target_->size(); i++)
-    {
-      Y(0,i) = input_target_->points[i].x;
-      Y(1,i) = input_target_->points[i].y;
-      Y(2,i) = input_target_->points[i].z;
-    }
-    
-    // SICP registration:
-    transformation_ = SICP::point_to_point(X, Y).matrix().cast<float>();
+    // TODO: SICP registration:
 
     // set output:
     result_pose = transformation_ * predict_pose;
