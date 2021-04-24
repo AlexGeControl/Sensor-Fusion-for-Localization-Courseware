@@ -52,15 +52,15 @@ rosbag play kitti_lidar_only_2011_10_03_drive_0027_synced.bag
 此处以Docker Workspace为例. 在Terminator中添加新窗口, 切换至如下目录:
 
 ```bash
-cd /workspace/assignments/01-lidar-odometry/src/lidar_localization/slam_data/trajectory
+cd /workspace/assignments/02-lidar-odometry-basic/src/lidar_localization/slam_data/trajectory
 ```
 
 <img src="doc/trajectory-dump.png" alt="Trajectory Dumps" width="100%">
 
 该目录下会输出:
 
-* 作为Ground Truth的RTK轨迹估计, ground_truth.txt
-* Lidar Frontend轨迹估计, laser_odom.txt
+* Ground Truth的RTK轨迹估计, ground_truth.txt
+* Lidar Frontend的轨迹估计, laser_odom.txt
 
 请使用上述两个文件, 完成**evo**的评估
 
