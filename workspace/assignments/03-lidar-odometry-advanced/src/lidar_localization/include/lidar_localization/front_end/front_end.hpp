@@ -31,10 +31,10 @@ class FrontEnd {
     FrontEnd(void);
 
     bool Update(
-      CloudData::CLOUD corner_sharp,
-      CloudData::CLOUD corner_less_sharp,
-      CloudData::CLOUD surf_flat,
-      CloudData::CLOUD surf_less_flat,
+      CloudData::CLOUD_PTR corner_sharp,
+      CloudData::CLOUD_PTR corner_less_sharp,
+      CloudData::CLOUD_PTR surf_flat,
+      CloudData::CLOUD_PTR surf_less_flat,
       Eigen::Matrix4f& lidar_odometry
     );
 
@@ -94,6 +94,7 @@ class FrontEnd {
   private:
     struct {
       float scan_period;
+      int max_num_iteration;
       float distance_thresh;
       float scan_thresh;
     } config_;

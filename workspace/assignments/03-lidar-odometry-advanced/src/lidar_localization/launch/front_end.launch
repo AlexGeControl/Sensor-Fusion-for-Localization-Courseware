@@ -13,11 +13,7 @@
 
     <node pkg="lidar_localization" type="scan_registration_node" name="scan_registration_node" output="screen"/>
 
-    <!-- 
     <node pkg="lidar_localization" type="front_end_node" name="front_end_node" output="screen" />
-    -->
-    
-    <node pkg="lidar_localization" type="aloam_laser_odometry_node" name="aloam_laser_odometry_node" output="screen" />
 
     <node pkg="lidar_localization" type="aloam_mapping_node" name="aloam_mapping_node" output="screen" />
 

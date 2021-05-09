@@ -28,10 +28,17 @@ FrontEnd::FrontEnd(void) {
 
     // init kdtrees for feature point association:
     InitKdTrees();
+
+    dq_ = Eigen::Quaternionf::Identity();
+    dt_ = Eigen::Vector3f::Zero();
+
+    q_ = Eigen::Quaternionf::Identity();
+    t_ = Eigen::Vector3f::Zero();
 }
 
 bool FrontEnd::InitParam(const YAML::Node& config_node) {
     config_.scan_period = 0.10f;
+    config_.max_num_iteration = config_node["max_num_iteration"].as<int>();
     config_.distance_thresh = config_node["distance_thresh"].as<float>();
     config_.scan_thresh = config_node["scan_thresh"].as<float>();
 
@@ -371,9 +378,6 @@ bool FrontEnd::SetTargetPoints(
 }
 
 bool FrontEnd::UpdateOdometry(Eigen::Matrix4f& lidar_odometry) {
-    LOG(WARNING) << dq_.toRotationMatrix() << std::endl;
-    LOG(WARNING) << dt_ << std::endl;
-
     q_ = q_ * dq_;
     t_ = q_ * dt_ + t_;
 
@@ -384,39 +388,42 @@ bool FrontEnd::UpdateOdometry(Eigen::Matrix4f& lidar_odometry) {
 }
 
 bool FrontEnd::Update(
-    CloudData::CLOUD corner_sharp,
-    CloudData::CLOUD corner_less_sharp,
-    CloudData::CLOUD surf_flat,
-    CloudData::CLOUD surf_less_flat,
+    CloudData::CLOUD_PTR corner_sharp,
+    CloudData::CLOUD_PTR corner_less_sharp,
+    CloudData::CLOUD_PTR surf_flat,
+    CloudData::CLOUD_PTR surf_less_flat,
     Eigen::Matrix4f& lidar_odometry
 ) {
     // feature point association:
     if ( inited_ ) {
-        std::vector<CornerPointAssociation> corner_point_associations;
-        AssociateCornerPoints(corner_sharp, corner_point_associations);
+        // iterative optimization:
+        for (int i = 0; i < config_.max_num_iteration; ++i) {
+            std::vector<CornerPointAssociation> corner_point_associations;
+            AssociateCornerPoints(*corner_sharp, corner_point_associations);
 
-        std::vector<SurfacePointAssociation> surface_point_associations;
-        AssociateSurfacePoints(surf_flat, surface_point_associations);
+            std::vector<SurfacePointAssociation> surface_point_associations;
+            AssociateSurfacePoints(*surf_flat, surface_point_associations);
 
-        if (corner_point_associations.size() + surface_point_associations.size() < 10) {
-            return false;
+            if (corner_point_associations.size() + surface_point_associations.size() < 10) {
+                return false;
+            }
+
+            // build problem:
+            CeresALOAMRegistration aloam_registration(dq_, dt_);
+            AddEdgeFactors(*corner_sharp, corner_point_associations, aloam_registration);
+            AddPlaneFactors(*surf_flat, surface_point_associations, aloam_registration);
+
+            // get relative pose:
+            aloam_registration.Optimize();
+            aloam_registration.GetOptimizedRelativePose(dq_, dt_);
         }
-
-        // build problem:
-        CeresALOAMRegistration aloam_registration(dq_, dt_);
-        AddEdgeFactors(corner_sharp, corner_point_associations, aloam_registration);
-        AddPlaneFactors(surf_flat, surface_point_associations, aloam_registration);
-
-        // get relative pose:
-        aloam_registration.Optimize();
-        aloam_registration.GetOptimizedRelativePose(dq_, dt_);
 
         // update odometry:
         UpdateOdometry(lidar_odometry);
     }
 
     // set target feature points for next association:
-    SetTargetPoints(corner_less_sharp, surf_less_flat);
+    SetTargetPoints(*corner_less_sharp, *surf_less_flat);
 
     return true;
 }

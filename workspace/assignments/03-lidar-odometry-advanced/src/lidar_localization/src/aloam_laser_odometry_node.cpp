@@ -205,13 +205,13 @@ int main(int argc, char **argv)
 
     ros::Subscriber subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>("/kitti/velo/pointcloud/filtered", 100, laserCloudFullResHandler);
 
-    ros::Publisher pubLaserCloudCornerLast = nh.advertise<sensor_msgs::PointCloud2>("/laser_cloud_corner_last", 100);
+    ros::Publisher pubLaserCloudCornerLast = nh.advertise<sensor_msgs::PointCloud2>("/mapping/pointcloud/sharp", 100);
 
-    ros::Publisher pubLaserCloudSurfLast = nh.advertise<sensor_msgs::PointCloud2>("/laser_cloud_surf_last", 100);
+    ros::Publisher pubLaserCloudSurfLast = nh.advertise<sensor_msgs::PointCloud2>("/mapping/pointcloud/flat", 100);
 
-    ros::Publisher pubLaserCloudFullRes = nh.advertise<sensor_msgs::PointCloud2>("/velodyne_cloud_3", 100);
+    ros::Publisher pubLaserCloudFullRes = nh.advertise<sensor_msgs::PointCloud2>("/mapping/pointcloud/full", 100);
 
-    ros::Publisher pubLaserOdometry = nh.advertise<nav_msgs::Odometry>("/laser_odom_scan_to_scan", 100);
+    ros::Publisher pubLaserOdometry = nh.advertise<nav_msgs::Odometry>("/odometry/lidar/scan_to_scan", 100);
 
     ros::Publisher pubLaserPath = nh.advertise<nav_msgs::Path>("/laser_odom_scan_to_scan_path", 100);
 
@@ -501,6 +501,13 @@ int main(int argc, char **argv)
                     ceres::Solver::Summary summary;
                     ceres::Solve(options, &problem, &summary);
                     printf("solver time %f ms \n", t_solver.toc());
+
+                    std::cout << "Scan-Scan Estimation: " << std::endl
+                              << "\tq: " << para_q[0] << ", " << para_q[1] << ", " << para_q[2] << ", " << para_q[3] << std::endl
+                              << "\tt: " << para_t[0] << ", " << para_t[1] << ", " << para_t[2] << std::endl
+                              << "Cost Reduced: " << summary.initial_cost - summary.final_cost << std::endl
+                              << summary.BriefReport() << std::endl
+                              << std::endl;
                 }
                 printf("optimization twice time %f \n", t_opt.toc());
 

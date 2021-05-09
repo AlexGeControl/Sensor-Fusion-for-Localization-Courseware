@@ -16,13 +16,23 @@ FrontEndFlow::FrontEndFlow(ros::NodeHandle& nh) {
     std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/config.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
+    // init params:
+    InitParam(config_node["front_end"]["param"]);
+
     // subscriber to registered scans:
     InitSubscribers(nh, config_node["scan_registration"]["publisher"]);
 
     // LOAM front end workflow:
     front_end_ptr_ = std::make_unique<FrontEnd>();
 
+    // publisher for point clous used by mapping:
     InitPublishers(nh, config_node["front_end"]["publisher"]);
+}
+
+bool FrontEndFlow::InitParam(const YAML::Node& config_node) {
+    config_.num_frames_skip = config_node["num_frames_skip"].as<int>();
+
+    return true;
 }
 
 bool FrontEndFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node) {
@@ -60,6 +70,25 @@ bool FrontEndFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config
 }
 
 bool FrontEndFlow::InitPublishers(ros::NodeHandle& nh, const YAML::Node& config_node) {
+    mapping_full_points_pub_ptr_ = std::make_unique<CloudPublisher>(
+        nh, 
+        config_node["full"]["topic_name"].as<std::string>(), 
+        config_node["full"]["frame_id"].as<std::string>(),
+        static_cast<size_t>(config_node["full"]["queue_size"].as<int>())
+    );
+    mapping_sharp_points_pub_ptr_ = std::make_unique<CloudPublisher>(
+        nh, 
+        config_node["sharp"]["topic_name"].as<std::string>(), 
+        config_node["sharp"]["frame_id"].as<std::string>(),
+        static_cast<size_t>(config_node["sharp"]["queue_size"].as<int>())
+    );
+    mapping_flat_points_pub_ptr_ = std::make_unique<CloudPublisher>(
+        nh, 
+        config_node["flat"]["topic_name"].as<std::string>(), 
+        config_node["flat"]["frame_id"].as<std::string>(),
+        static_cast<size_t>(config_node["flat"]["queue_size"].as<int>())
+    );
+
     odom_scan_to_scan_pub_ptr_ = std::make_unique<OdometryPublisher>(
         nh, 
         config_node["odometry"]["topic_name"].as<std::string>(),
@@ -148,10 +177,10 @@ bool FrontEndFlow::ValidData() {
 
 bool FrontEndFlow::UpdateData(void) {
     front_end_ptr_->Update(
-        *corner_points_sharp_.cloud_ptr,
-        *corner_points_less_sharp_.cloud_ptr,
-        *surf_points_flat_.cloud_ptr,
-        *surf_points_less_flat_.cloud_ptr,
+        corner_points_sharp_.cloud_ptr,
+        corner_points_less_sharp_.cloud_ptr,
+        surf_points_flat_.cloud_ptr,
+        surf_points_less_flat_.cloud_ptr,
         odometry_
     );
 
@@ -159,8 +188,22 @@ bool FrontEndFlow::UpdateData(void) {
 }
 
 bool FrontEndFlow::PublishData(void) {
-    LOG(WARNING) << "Publish scan-scan odom" << std::endl;
-    odom_scan_to_scan_pub_ptr_->Publish(odometry_);
+    static Eigen::Matrix4f gnss_to_odom = Eigen::Matrix4f::Identity();
+    static int frame_count{0};
+
+    odom_scan_to_scan_pub_ptr_->Publish(gnss_to_odom * odometry_, filtered_cloud_.time);
+
+    //
+    // publish point cloud for mapping:
+    // 
+    if ( 0 == (++frame_count % config_.num_frames_skip) ) {
+        // reset frame count:
+        frame_count = 0;
+        
+        mapping_full_points_pub_ptr_->Publish(filtered_cloud_.cloud_ptr, filtered_cloud_.time);
+        mapping_sharp_points_pub_ptr_->Publish(corner_points_less_sharp_.cloud_ptr, filtered_cloud_.time);
+        mapping_flat_points_pub_ptr_->Publish(surf_points_less_flat_.cloud_ptr, filtered_cloud_.time);
+    }
 
     return true;
 }

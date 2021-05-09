@@ -916,13 +916,13 @@ int main(int argc, char **argv)
 	downSizeFilterCorner.setLeafSize(lineRes, lineRes,lineRes);
 	downSizeFilterSurf.setLeafSize(planeRes, planeRes, planeRes);
 
-	ros::Subscriber subLaserCloudCornerLast = nh.subscribe<sensor_msgs::PointCloud2>("/laser_cloud_corner_last", 100, laserCloudCornerLastHandler);
+	ros::Subscriber subLaserCloudCornerLast = nh.subscribe<sensor_msgs::PointCloud2>("/mapping/pointcloud/sharp", 100, laserCloudCornerLastHandler);
 
-	ros::Subscriber subLaserCloudSurfLast = nh.subscribe<sensor_msgs::PointCloud2>("/laser_cloud_surf_last", 100, laserCloudSurfLastHandler);
+	ros::Subscriber subLaserCloudSurfLast = nh.subscribe<sensor_msgs::PointCloud2>("/mapping/pointcloud/flat", 100, laserCloudSurfLastHandler);
 
-	ros::Subscriber subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/laser_odom_scan_to_scan", 100, laserOdometryHandler);
+	ros::Subscriber subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/odometry/lidar/scan_to_scan", 100, laserOdometryHandler);
 
-	ros::Subscriber subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>("/velodyne_cloud_3", 100, laserCloudFullResHandler);
+	ros::Subscriber subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>("/mapping/pointcloud/full", 100, laserCloudFullResHandler);
 
 	pubLaserCloudSurround = nh.advertise<sensor_msgs::PointCloud2>("/laser_cloud_surround", 100);
 

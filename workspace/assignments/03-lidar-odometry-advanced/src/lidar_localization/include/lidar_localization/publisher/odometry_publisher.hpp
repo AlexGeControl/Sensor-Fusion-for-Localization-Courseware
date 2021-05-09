@@ -22,12 +22,15 @@ class OdometryPublisher {
                       int buff_size);
     OdometryPublisher() = default;
 
+    void Publish(const Eigen::Matrix4f& transform_matrix, double time);
     void Publish(const Eigen::Matrix4f& transform_matrix);
 
   private:
     ros::NodeHandle nh_;
     ros::Publisher publisher_;
     nav_msgs::Odometry odometry_;
+
+    void Publish(const Eigen::Matrix4f& transform_matrix, const ros::Time &time);
 };
 }
 #endif

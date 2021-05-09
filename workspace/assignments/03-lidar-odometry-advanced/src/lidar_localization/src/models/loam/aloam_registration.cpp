@@ -22,7 +22,7 @@ CeresALOAMRegistration::CeresALOAMRegistration(const Eigen::Quaternionf &dq, con
     config_.q_parameterization_ptr = new ceres::EigenQuaternionParameterization();
     // 2. loss function:
     // TODO: move param to config
-    config_.loss_function_ptr =  new ceres::HuberLoss(0.10);
+    config_.loss_function_ptr = new ceres::HuberLoss(0.10);
 
     // 3. solver:
     config_.options.linear_solver_type = ceres::DENSE_QR;
@@ -106,7 +106,7 @@ bool CeresALOAMRegistration::AddPlaneFactor(
 bool CeresALOAMRegistration::Optimize() {
     // solve:
     ceres::Solver::Summary summary;
-    
+
     // time it:
     auto start = std::chrono::steady_clock::now();
 
@@ -114,12 +114,6 @@ bool CeresALOAMRegistration::Optimize() {
     
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> time_used = end - start;
-
-    // prompt:
-    LOG(INFO) << "Time Used: " << time_used.count() << " seconds." << std::endl
-                << "Cost Reduced: " << summary.initial_cost - summary.final_cost << std::endl
-                << summary.BriefReport() << std::endl
-                << std::endl;
     
     return true;
 }
@@ -129,7 +123,16 @@ bool CeresALOAMRegistration::Optimize() {
   * @return true if success false otherwise
   */
 bool CeresALOAMRegistration::GetOptimizedRelativePose(Eigen::Quaternionf &dq, Eigen::Vector3f &dt) {
-    Eigen::Quaternionf q(param_.q[0], param_.q[1], param_.q[2], param_.q[3]);
+    Eigen::Quaternionf q(
+        // w:
+        param_.q[3], 
+        // x:
+        param_.q[0], 
+        // y:
+        param_.q[1], 
+        // z:
+        param_.q[2]
+    );
     Eigen::Vector3f t(param_.t[0], param_.t[1], param_.t[2]);
 
     dq = q;

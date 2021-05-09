@@ -46,6 +46,19 @@ scan_registration:
                 leaf_size: [0.2, 0.2, 0.2]
 front_end:
     publisher:
+        sharp:
+            topic_name: /mapping/pointcloud/sharp
+            frame_id: velo_link
+            queue_size: 100
+        flat:
+            topic_name: /mapping/pointcloud/flat
+            frame_id: velo_link
+            queue_size: 100
+        full:
+            topic_name: /mapping/pointcloud/full
+            frame_id: velo_link
+            queue_size: 100
+
         odometry:
             topic_name: /odometry/lidar/scan_to_scan
             frame_id: /map
@@ -56,7 +69,11 @@ front_end:
             frame_id: /map
             queue_size: 100
     param:
+        # max. num of iterations, scan-scan odometry estimation:
+        max_num_iteration: 5
         # kdtree nearest-neighborhood thresh:
         distance_thresh: 25.0
         # lidar scan neighborhood thresh:
         scan_thresh: 2.50
+        # mapping point cloud publish freq:
+        num_frames_skip: 5
