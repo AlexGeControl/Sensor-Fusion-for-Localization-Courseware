@@ -24,7 +24,32 @@ namespace lidar_localization {
 
 class CeresALOAMRegistration {
 public:
-    CeresALOAMRegistration(const Eigen::Quaternionf &dq, const Eigen::Vector3f &dt);
+    class Config {
+    public:
+        int num_threads{4};
+        int max_num_iterations{5};
+
+        double max_solver_time_in_seconds{0.10};
+
+        Config(void) {}
+
+        Config& set_num_threads(const int num_threads) {
+            this->num_threads = num_threads;
+            return *this;
+        }
+
+        Config& set_max_num_iterations(const int max_num_iterations) {
+            this->max_num_iterations = max_num_iterations;
+            return *this;
+        }
+
+        Config& set_max_solver_time_in_seconds(const double& max_solver_time_in_seconds) {
+            this->max_solver_time_in_seconds = max_solver_time_in_seconds;
+            return *this;
+        }
+    };
+
+    CeresALOAMRegistration(const Config& config, const Eigen::Quaternionf &dq, const Eigen::Vector3f &dt);
     ~CeresALOAMRegistration();
 
     /**

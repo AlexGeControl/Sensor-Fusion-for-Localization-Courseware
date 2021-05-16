@@ -157,12 +157,12 @@ bool EvaluationFlow::ValidData() {
     current_gnss_data_ = gnss_data_buff_.front();
 
     double d_time = odom_scan_to_scan_.time - current_imu_data_.time;
-    if (d_time < -0.08) {
+    if (d_time < -0.05) {
         odom_scan_to_scan_buff_.pop_front();
         return false;
     }
 
-    if (d_time > 0.08) {
+    if (d_time > 0.05) {
         imu_data_buff_.pop_front();
         gnss_data_buff_.pop_front();
         return false;

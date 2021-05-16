@@ -42,6 +42,9 @@ bool ScanScanRegistration::InitParam(const YAML::Node& config_node) {
     config_.distance_thresh = config_node["distance_thresh"].as<float>();
     config_.scan_thresh = config_node["scan_thresh"].as<float>();
 
+    config_.registration_config.set_num_threads(4)
+                               .set_max_num_iterations(4)
+                               .set_max_solver_time_in_seconds(0.05);
     return true;
 }
 
@@ -93,7 +96,7 @@ bool ScanScanRegistration::AssociateCornerPoints(
             CornerPointAssociation corner_point_association;
 
             corner_point_association.query_index = i;
-            corner_point_association.ratio = (query_point.intensity - int(query_point.intensity)) / config_.scan_period;
+            corner_point_association.ratio = 1.0; // (query_point.intensity - int(query_point.intensity)) / config_.scan_period;
 
             // set the first associated point as the closest point:
             corner_point_association.associated_x_index = result_indices[0];
@@ -199,7 +202,7 @@ bool ScanScanRegistration::AssociateSurfacePoints(
             SurfacePointAssociation surface_point_association;
 
             surface_point_association.query_index = i;
-            surface_point_association.ratio = (query_point.intensity - int(query_point.intensity)) / config_.scan_period;
+            surface_point_association.ratio = 1.0; // (query_point.intensity - int(query_point.intensity)) / config_.scan_period;
 
             // set the first associated point as the closest point:
             surface_point_association.associated_x_index = result_indices[0];
@@ -422,7 +425,7 @@ bool ScanScanRegistration::Update(
             }
 
             // build problem:
-            CeresALOAMRegistration aloam_registration(dq_, dt_);
+            CeresALOAMRegistration aloam_registration(config_.registration_config, dq_, dt_);
             const auto num_edge_factors = AddEdgeFactors(*corner_sharp, corner_point_associations, aloam_registration);
             const auto num_plane_factors = AddPlaneFactors(*surf_flat, surface_point_associations, aloam_registration);
 

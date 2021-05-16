@@ -3,32 +3,32 @@ data_pretreat:
         velodyne:
             topic_name: /kitti/velo/pointcloud
             frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000
     publisher:
         filtered:
             topic_name: /kitti/velo/pointcloud/filtered
             frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000
         sharp:
             topic_name: /kitti/velo/pointcloud/sharp
             frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000
         less_sharp:
             topic_name: /kitti/velo/pointcloud/less_sharp
             frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000
         flat:
             topic_name: /kitti/velo/pointcloud/flat
             frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000
         less_flat:
             topic_name: /kitti/velo/pointcloud/less_flat
             frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000
         removed:
             topic_name: /kitti/velo/pointcloud/removed
             frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000
     param:
         # used later for motion compensation:
         scan_period: 0.10
@@ -49,44 +49,44 @@ scan_scan_registration:
         sharp:
             topic_name: /mapping/pointcloud/sharp
             frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000
         flat:
             topic_name: /mapping/pointcloud/flat
             frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000
         full:
             topic_name: /mapping/pointcloud/full
             frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000
         odometry:
             topic_name: /odometry/lidar/scan_to_scan
             frame_id: /map
             child_frame_id: /velo_link
-            queue_size: 100
+            queue_size: 50000
         path:
             topic_name: /trajectory/lidar/scan_to_scan
             frame_id: /map
-            queue_size: 100
+            queue_size: 50000
     param:
         # max. num of iterations, scan-scan odometry estimation:
-        max_num_iteration: 3
+        max_num_iteration: 2
         # kdtree nearest-neighborhood thresh:
         distance_thresh: 25.0
         # lidar scan neighborhood thresh:
         scan_thresh: 2.50
         # mapping point cloud publish freq:
-        num_frames_skip: 2
+        num_frames_skip: 1
 scan_map_registration:
     publisher:
         odometry:
             topic_name: /odometry/lidar/scan_to_map
             frame_id: /map
             child_frame_id: /velo_link
-            queue_size: 100
+            queue_size: 50000
         path:
             topic_name: /trajectory/lidar/scan_to_map
             frame_id: /map
-            queue_size: 100
+            queue_size: 50000
     param:
         # down sampler for LOAM feature points:
         filter:
@@ -110,7 +110,7 @@ scan_map_registration:
             # min. num of plane feature points:
             min_num_flat_points: 50
             # max. num of iterations, scan-map odometry estimation:
-            max_num_iteration: 3
+            max_num_iteration: 2
             # kdtree nearest-neighborhood thresh:
             distance_thresh: 1.0
         # lidar map publish freq:
@@ -120,22 +120,22 @@ evaluation:
         odometry:
             topic_name: /odometry/lidar/scan_to_map
             frame_id: imu_link
-            queue_size: 100
+            queue_size: 50000
         velodyne:
             topic_name: /kitti/velo/pointcloud
             frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000
         imu:
             topic_name: /kitti/oxts/imu
             frame_id: imu_link
-            queue_size: 100
+            queue_size: 50000
         gnss:
             topic_name: /kitti/oxts/gps/fix
             frame_id: imu_link
-            queue_size: 100
+            queue_size: 50000
     publisher:
         odometry:
             topic_name: /odometry/ground_truth
             frame_id: map
             child_frame_id: velo_link
-            queue_size: 100
+            queue_size: 50000

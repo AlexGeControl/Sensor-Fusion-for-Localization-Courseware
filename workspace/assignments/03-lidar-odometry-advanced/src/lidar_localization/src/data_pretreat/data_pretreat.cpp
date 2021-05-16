@@ -344,7 +344,7 @@ bool DataPretreat::GetFeaturePoints(
 
                     ++num_corners;
 
-                    if (num_corners <= 4)
+                    if (num_corners <= 2)
                     {                        
                         index_.point.label[ind] = FeaturePoint::CORNER_SHARP;
                         corner_sharp->push_back(cloud.points[ind]);
@@ -379,7 +379,7 @@ bool DataPretreat::GetFeaturePoints(
                     surf_flat->push_back(cloud.points[ind]);
 
                     ++num_surf;
-                    if (num_surf >= 8)
+                    if (num_surf >= 4)
                     { 
                         break;
                     }

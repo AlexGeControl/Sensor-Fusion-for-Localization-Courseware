@@ -36,7 +36,9 @@ SubMap::SubMap(const SubMap::Config& config) {
     center_.z = config_.num_tiles_z >> 1;
 }
 
-SubMap::LocalMap SubMap::GetLocalMap(const Eigen::Vector3f &query_position) {
+SubMap::LocalMap SubMap::GetLocalMap(
+    const Eigen::Vector3f &query_position
+) {
     // first, convert query position to tile index:
     auto query_index = GetTileIndex(query_position);
 
@@ -59,6 +61,36 @@ bool SubMap::RegisterPlaneFeaturePoints(
     const Eigen::Quaternionf& q, const Eigen::Vector3f& t
 ) {
     return RegisterFeaturePoints(points, q, t, tiles_.flat);
+}
+
+bool SubMap::DownsampleLocalMap(
+    const SubMap::Index &query_index,
+    std::unique_ptr<CloudFilterInterface>& sharp_filter_ptr,
+    std::unique_ptr<CloudFilterInterface>& flat_filter_ptr
+) {
+    const auto local_map_radius = config_.local_map_radius;
+    for (int dx = -local_map_radius; dx <= local_map_radius; ++dx) {
+        for (int dy = -local_map_radius; dy <= local_map_radius; ++dy) {
+            for (int dz = -(local_map_radius >> 1); dz <= (local_map_radius >> 1); ++dz) {
+                const SubMap::Index curr_tile_index{
+                    query_index.x + dx, 
+                    query_index.y + dy, 
+                    query_index.z + dz
+                };
+
+                if (IsValidIndex(curr_tile_index)) {
+                    const auto curr_tile_id = GetTileId(curr_tile_index);
+
+                    auto& curr_sharp_tile = tiles_.sharp.at(curr_tile_id);
+                    auto& curr_flat_tile = tiles_.flat.at(curr_tile_id);
+
+                    sharp_filter_ptr->Filter(curr_sharp_tile, curr_sharp_tile);
+                    flat_filter_ptr->Filter(curr_flat_tile, curr_flat_tile);
+                }
+            }
+        }
+    }
+    return true;
 }
 
 SubMap::Index SubMap::GetTileIndex(const Eigen::Vector3f &t) {
@@ -314,16 +346,19 @@ void SubMap::Reanchor(SubMap::Index &query_index) {
     }
 }
 
-SubMap::LocalMap SubMap::GetLocalMap(const SubMap::Index& query_index) {
+SubMap::LocalMap SubMap::GetLocalMap(
+    const SubMap::Index& query_index
+) {
     SubMap::LocalMap local_map;
 
+    local_map.query_index = query_index;
     local_map.sharp.reset(new CloudData::CLOUD());
     local_map.flat.reset(new CloudData::CLOUD());
 
     const auto local_map_radius = config_.local_map_radius;
     for (int dx = -local_map_radius; dx <= local_map_radius; ++dx) {
         for (int dy = -local_map_radius; dy <= local_map_radius; ++dy) {
-            for (int dz = -local_map_radius; dz <= local_map_radius; ++dz) {
+            for (int dz = -(local_map_radius >> 1); dz <= (local_map_radius >> 1); ++dz) {
                 const SubMap::Index curr_tile_index{
                     query_index.x + dx, 
                     query_index.y + dy, 

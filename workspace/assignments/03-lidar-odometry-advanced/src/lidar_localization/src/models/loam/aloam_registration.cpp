@@ -14,7 +14,10 @@
 
 namespace lidar_localization {
 
-CeresALOAMRegistration::CeresALOAMRegistration(const Eigen::Quaternionf &dq, const Eigen::Vector3f &dt) {   
+CeresALOAMRegistration::CeresALOAMRegistration(
+    const CeresALOAMRegistration::Config& config, 
+    const Eigen::Quaternionf &dq, const Eigen::Vector3f &dt
+) {   
     //
     // config optimizer:
     // 
@@ -29,10 +32,10 @@ CeresALOAMRegistration::CeresALOAMRegistration(const Eigen::Quaternionf &dq, con
     // config_.options.use_explicit_schur_complement = true;
     // config_.options.trust_region_strategy_type = ceres::DOGLEG;
     // config_.options.use_nonmonotonic_steps = true;
-    config_.options.num_threads = 2;
-    config_.options.max_num_iterations = 50;
+    config_.options.num_threads = config.num_threads;
+    config_.options.max_num_iterations = config.max_num_iterations;
     config_.options.minimizer_progress_to_stdout = false;
-    config_.options.max_solver_time_in_seconds = 0.10;
+    config_.options.max_solver_time_in_seconds = config.max_solver_time_in_seconds;
 
     //
     // config target variables:

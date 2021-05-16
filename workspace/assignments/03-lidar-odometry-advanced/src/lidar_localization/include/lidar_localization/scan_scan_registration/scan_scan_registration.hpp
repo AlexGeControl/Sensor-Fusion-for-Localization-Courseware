@@ -105,6 +105,7 @@ class ScanScanRegistration {
       int max_num_iteration;
       float distance_thresh;
       float scan_thresh;
+      CeresALOAMRegistration::Config registration_config;
     } config_;
 
     // target corner & plane feature points:

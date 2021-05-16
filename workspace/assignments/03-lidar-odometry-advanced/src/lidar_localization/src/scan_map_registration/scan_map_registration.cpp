@@ -50,7 +50,7 @@ bool ScanMapRegistration::Update(
     PredictScanMapOdometry(odom_scan_to_scan);
 
     // get local map:
-    const auto local_map = submap_ptr_->GetLocalMap(pose_.scan_map_odometry.t);
+    auto local_map = submap_ptr_->GetLocalMap(pose_.scan_map_odometry.t);
 
     // if sufficient feature points for matching have been found:
     if ( HasSufficientFeaturePoints(local_map) ) {
@@ -61,7 +61,10 @@ bool ScanMapRegistration::Update(
         // LOG(WARNING) << "Scan-Map Registration: " << std::endl;
         for (int i = 0; i < config_.max_num_iteration; ++i) {
             // build problem:
-            CeresALOAMRegistration aloam_registration(pose_.scan_map_odometry.q, pose_.scan_map_odometry.t);
+            CeresALOAMRegistration aloam_registration(
+                config_.registration_config,
+                pose_.scan_map_odometry.q, pose_.scan_map_odometry.t
+            );
             const auto num_edge_factors = AddEdgeFactors(filtered_sharp_points, local_map.sharp, aloam_registration);
             const auto num_plane_factors = AddPlaneFactors(filtered_flat_points, local_map.flat, aloam_registration);
 
@@ -80,6 +83,12 @@ bool ScanMapRegistration::Update(
     submap_ptr_->RegisterLineFeaturePoints(filtered_sharp_points, pose_.scan_map_odometry.q, pose_.scan_map_odometry.t);
     submap_ptr_->RegisterPlaneFeaturePoints(filtered_flat_points, pose_.scan_map_odometry.q, pose_.scan_map_odometry.t);
 
+    // downsample local map:
+    // submap_ptr_->DownsampleLocalMap(
+    //     local_map.query_index, 
+    //     filter_.sharp_filter_ptr_, filter_.flat_filter_ptr_
+    // );
+
     // update odometry:
     UpdateOdometry(lidar_odometry);
 
@@ -91,6 +100,10 @@ bool ScanMapRegistration::InitParams(const YAML::Node& config_node) {
     config_.min_num_flat_points = config_node["min_num_flat_points"].as<int>();
     config_.max_num_iteration = config_node["max_num_iteration"].as<int>();
     config_.distance_thresh = config_node["distance_thresh"].as<double>();
+
+    config_.registration_config.set_num_threads(4)
+                               .set_max_num_iterations(4)
+                               .set_max_solver_time_in_seconds(0.10);
 
     return true;
 }
@@ -138,8 +151,11 @@ bool ScanMapRegistration::HasSufficientFeaturePoints(const aloam::SubMap::LocalM
 }
 
 bool ScanMapRegistration::SetTargetPoints(
-    const aloam::SubMap::LocalMap& local_map
+    aloam::SubMap::LocalMap& local_map
 ) {
+    filter_.sharp_filter_ptr_->Filter(local_map.sharp, local_map.sharp);
+    filter_.flat_filter_ptr_->Filter(local_map.flat, local_map.flat);
+
     kdtree_.sharp->setInputCloud(local_map.sharp);
     kdtree_.flat->setInputCloud(local_map.flat);
 

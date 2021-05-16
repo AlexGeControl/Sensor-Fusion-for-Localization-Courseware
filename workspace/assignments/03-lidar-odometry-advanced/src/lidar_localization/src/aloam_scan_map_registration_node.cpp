@@ -931,9 +931,9 @@ int main(int argc, char **argv)
 
 	pubLaserCloudFullRes = nh.advertise<sensor_msgs::PointCloud2>("/velodyne_cloud_registered", 100);
 
-	pubOdomAftMapped = nh.advertise<nav_msgs::Odometry>("/laser_odom_scan_to_map", 100);
+	pubOdomAftMapped = nh.advertise<nav_msgs::Odometry>("/odometry/lidar/scan_to_map", 100);
 
-	pubOdomAftMappedHighFrec = nh.advertise<nav_msgs::Odometry>("/laser_odom_scan_to_map_high_freq", 100);
+	pubOdomAftMappedHighFrec = nh.advertise<nav_msgs::Odometry>("/odometry/lidar/scan_to_map/high_freq", 100);
 
 	pubLaserAfterMappedPath = nh.advertise<nav_msgs::Path>("/laser_odom_scan_to_map_path", 100);
 

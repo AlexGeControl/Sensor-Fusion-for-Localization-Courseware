@@ -63,6 +63,7 @@ class ScanMapRegistration {
       int min_num_flat_points{50};
       int max_num_iteration{5};
       double distance_thresh{1.0};
+      CeresALOAMRegistration::Config registration_config;
     } config_;
 
     //
@@ -100,7 +101,7 @@ class ScanMapRegistration {
     bool InitSubMap(const YAML::Node& config_node);
 
     bool HasSufficientFeaturePoints(const aloam::SubMap::LocalMap &local_map);
-    bool SetTargetPoints(const aloam::SubMap::LocalMap& local_map);
+    bool SetTargetPoints(aloam::SubMap::LocalMap& local_map);
 
     bool ProjectToMapFrame(
       const CloudData::POINT &input,

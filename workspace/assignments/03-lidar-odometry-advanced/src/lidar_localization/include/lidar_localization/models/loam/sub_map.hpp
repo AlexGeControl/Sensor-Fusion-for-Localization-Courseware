@@ -77,25 +77,6 @@ public:
 
     SubMap(const Config& config);
 
-    struct LocalMap {
-        CloudData::CLOUD_PTR sharp;
-        CloudData::CLOUD_PTR flat;
-    };
-
-    LocalMap GetLocalMap(const Eigen::Vector3f &query_position);
-
-    bool RegisterLineFeaturePoints(
-        const CloudData::CLOUD_PTR points, 
-        const Eigen::Quaternionf& q, const Eigen::Vector3f& t
-    );
-    bool RegisterPlaneFeaturePoints(
-        const CloudData::CLOUD_PTR points, 
-        const Eigen::Quaternionf& q, const Eigen::Vector3f& t
-    ); 
-
-private:
-    Config config_;
-
     struct Index {
         int x;
         int y;
@@ -109,6 +90,34 @@ private:
             this->z = z;
         }
     };
+
+    struct LocalMap {
+        Index query_index;
+        CloudData::CLOUD_PTR sharp;
+        CloudData::CLOUD_PTR flat;
+    };
+
+    LocalMap GetLocalMap(
+        const Eigen::Vector3f &query_position
+    );
+
+    bool RegisterLineFeaturePoints(
+        const CloudData::CLOUD_PTR points, 
+        const Eigen::Quaternionf& q, const Eigen::Vector3f& t
+    );
+    bool RegisterPlaneFeaturePoints(
+        const CloudData::CLOUD_PTR points, 
+        const Eigen::Quaternionf& q, const Eigen::Vector3f& t
+    );
+
+    bool DownsampleLocalMap(
+        const Index &index,
+        std::unique_ptr<CloudFilterInterface>& sharp_filter_ptr,
+        std::unique_ptr<CloudFilterInterface>& flat_filter_ptr
+    );
+
+private:
+    Config config_;
 
     Index center_;
 
@@ -139,7 +148,9 @@ private:
     ///@brief sync sub map with query position:
     void Reanchor(Index &query_index);
     ///@brief get local map:
-    LocalMap GetLocalMap(const Index& query_index);
+    LocalMap GetLocalMap(
+        const Index& query_index
+    );
 
     bool ProjectToMapFrame(
         const CloudData::POINT &input,
