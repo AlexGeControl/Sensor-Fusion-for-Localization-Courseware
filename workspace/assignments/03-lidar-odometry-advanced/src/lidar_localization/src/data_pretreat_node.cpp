@@ -1,5 +1,5 @@
 /*
- * @Description: LOAM front end node
+ * @Description: LOAM scan registration node
  * @Author: Ge Yao
  * @Date: 2021-05-02 12:56:27
  */
@@ -10,8 +10,7 @@
 
 #include <lidar_localization/saveMap.h>
 #include "lidar_localization/global_defination/global_defination.h"
-
-#include "lidar_localization/front_end/front_end_flow.hpp"
+#include "lidar_localization/data_pretreat/data_pretreat_flow.hpp"
 
 using namespace lidar_localization;
 
@@ -20,11 +19,11 @@ int main(int argc, char *argv[]) {
     FLAGS_log_dir = WORK_SPACE_PATH + "/Log";
     FLAGS_alsologtostderr = 1;
 
-    ros::init(argc, argv, "front_end_node");
+    ros::init(argc, argv, "data_pretreat_node");
     ros::NodeHandle nh;
 
     // register front end processing workflow:
-    std::unique_ptr<FrontEndFlow> front_end_flow_ptr = std::make_unique<FrontEndFlow>(nh);
+    std::unique_ptr<DataPretreatFlow> data_pretreat_flow_ptr = std::make_unique<DataPretreatFlow>(nh);
 
     // process rate: 10Hz
     ros::Rate rate(10);
@@ -32,7 +31,7 @@ int main(int argc, char *argv[]) {
     while (ros::ok()) {
         ros::spinOnce();
 
-        front_end_flow_ptr->Run();
+        data_pretreat_flow_ptr->Run();
 
         rate.sleep();
     }

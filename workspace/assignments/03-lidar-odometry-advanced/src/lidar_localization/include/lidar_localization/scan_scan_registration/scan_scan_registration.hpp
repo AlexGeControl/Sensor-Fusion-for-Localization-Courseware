@@ -1,10 +1,10 @@
 /*
- * @Description: front end workflow
+ * @Description: LOAM scan-scan registration interface
  * @Author: Ge Yao
- * @Date: 2021-01-30 22:38:22
+ * @Date: 2021-05-09 14:38:03
  */
-#ifndef LIDAR_LOCALIZATION_FRONT_END_HPP_
-#define LIDAR_LOCALIZATION_FRONT_END_HPP_
+#ifndef LIDAR_LOCALIZATION_SCAN_SCAN_REGISTRATION_HPP_
+#define LIDAR_LOCALIZATION_SCAN_SCAN_REGISTRATION_HPP_
 
 #include <memory>
 
@@ -26,9 +26,9 @@
 
 namespace lidar_localization {
 
-class FrontEnd {
+class ScanScanRegistration {
   public:
-    FrontEnd(void);
+    ScanScanRegistration(void);
 
     bool Update(
       CloudData::CLOUD_PTR corner_sharp,
@@ -40,22 +40,30 @@ class FrontEnd {
 
   private:
     struct CornerPointAssociation {
-      int query_index;
+      int query_index{-1};
 
-      double ratio;
+      double ratio{1.0};
 
-      int associated_x_index;
-      int associated_y_index;
+      int associated_x_index{-1};
+      int associated_y_index{-1};
+
+      inline bool IsValid(void) const {
+        return (query_index >= 0) && (associated_x_index >= 0) && (associated_y_index >= 0);
+      }
     };
 
     struct SurfacePointAssociation {
-      int query_index;
+      int query_index{-1};
 
-      double ratio;
+      double ratio{1.0};
       
-      int associated_x_index;
-      int associated_y_index;
-      int associated_z_index;
+      int associated_x_index{-1};
+      int associated_y_index{-1};
+      int associated_z_index{-1};
+
+      inline bool IsValid(void) const {
+        return (query_index >= 0) && (associated_x_index >= 0) && (associated_y_index >= 0) && (associated_z_index >= 0);
+      }
     };
 
   private:
@@ -73,12 +81,12 @@ class FrontEnd {
       std::vector<SurfacePointAssociation> &surface_point_associations
     );
 
-    bool AddEdgeFactors(
+    int AddEdgeFactors(
         const CloudData::CLOUD &corner_sharp,
         const std::vector<CornerPointAssociation> &corner_point_associations,
         CeresALOAMRegistration &aloam_registration
     );
-    bool AddPlaneFactors(
+    int AddPlaneFactors(
         const CloudData::CLOUD &surf_flat,
         const std::vector<SurfacePointAssociation> &surface_point_associations,
         CeresALOAMRegistration &aloam_registration
@@ -122,4 +130,4 @@ class FrontEnd {
 
 } // namespace lidar_localization
 
-#endif // LIDAR_LOCALIZATION_FRONT_END_HPP_
+#endif // LIDAR_LOCALIZATION_SCAN_SCAN_REGISTRATION_HPP_

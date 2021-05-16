@@ -1,9 +1,9 @@
 /*
- * @Description: LOAM front end facade
+ * @Description: LOAM scan-scan registration facade
  * @Author: Ge Yao
- * @Date: 2021-01-30 22:38:22
+ * @Date: 2021-05-09 14:38:03
  */
-#include "lidar_localization/front_end/front_end_flow.hpp"
+#include "lidar_localization/scan_scan_registration/scan_scan_registration_flow.hpp"
 
 #include "glog/logging.h"
 
@@ -12,30 +12,30 @@
 
 namespace lidar_localization {
 
-FrontEndFlow::FrontEndFlow(ros::NodeHandle& nh) {
+ScanScanRegistrationFlow::ScanScanRegistrationFlow(ros::NodeHandle& nh) {
     std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/config.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
     // init params:
-    InitParam(config_node["front_end"]["param"]);
+    InitParam(config_node["scan_scan_registration"]["param"]);
 
     // subscriber to registered scans:
-    InitSubscribers(nh, config_node["scan_registration"]["publisher"]);
+    InitSubscribers(nh, config_node["data_pretreat"]["publisher"]);
 
     // LOAM front end workflow:
-    front_end_ptr_ = std::make_unique<FrontEnd>();
+    scan_scan_registration_ptr_ = std::make_unique<ScanScanRegistration>();
 
     // publisher for point clous used by mapping:
-    InitPublishers(nh, config_node["front_end"]["publisher"]);
+    InitPublishers(nh, config_node["scan_scan_registration"]["publisher"]);
 }
 
-bool FrontEndFlow::InitParam(const YAML::Node& config_node) {
+bool ScanScanRegistrationFlow::InitParam(const YAML::Node& config_node) {
     config_.num_frames_skip = config_node["num_frames_skip"].as<int>();
 
     return true;
 }
 
-bool FrontEndFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node) {
+bool ScanScanRegistrationFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node) {
     filtered_cloud_sub_ptr_ = std::make_unique<CloudSubscriber>(
         nh, 
         config_node["filtered"]["topic_name"].as<std::string>(), 
@@ -69,7 +69,7 @@ bool FrontEndFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config
     return true;
 }
 
-bool FrontEndFlow::InitPublishers(ros::NodeHandle& nh, const YAML::Node& config_node) {
+bool ScanScanRegistrationFlow::InitPublishers(ros::NodeHandle& nh, const YAML::Node& config_node) {
     mapping_full_points_pub_ptr_ = std::make_unique<CloudPublisher>(
         nh, 
         config_node["full"]["topic_name"].as<std::string>(), 
@@ -100,7 +100,7 @@ bool FrontEndFlow::InitPublishers(ros::NodeHandle& nh, const YAML::Node& config_
     return true;
 }
 
-bool FrontEndFlow::Run(void) {
+bool ScanScanRegistrationFlow::Run(void) {
     if (!ReadData()) {
         return false;
     }
@@ -119,7 +119,7 @@ bool FrontEndFlow::Run(void) {
     return true;
 }
 
-bool FrontEndFlow::ReadData(void) {
+bool ScanScanRegistrationFlow::ReadData(void) {
     filtered_cloud_sub_ptr_->ParseData(filtered_cloud_buff_);
     corner_points_sharp_sub_ptr_->ParseData(corner_points_sharp_buff_);
     corner_points_less_sharp_sub_ptr_->ParseData(corner_points_less_sharp_buff_);
@@ -129,7 +129,7 @@ bool FrontEndFlow::ReadData(void) {
     return true;
 }
 
-bool FrontEndFlow::HasData(void) {
+bool ScanScanRegistrationFlow::HasData(void) {
     if ( 
         filtered_cloud_buff_.empty() || 
         corner_points_sharp_buff_.empty() || 
@@ -143,7 +143,7 @@ bool FrontEndFlow::HasData(void) {
     return true;
 }
 
-bool FrontEndFlow::ValidData() {
+bool ScanScanRegistrationFlow::ValidData() {
     filtered_cloud_ = filtered_cloud_buff_.front();
 
     corner_points_sharp_ = corner_points_sharp_buff_.front();
@@ -175,8 +175,8 @@ bool FrontEndFlow::ValidData() {
     return true;
 }
 
-bool FrontEndFlow::UpdateData(void) {
-    front_end_ptr_->Update(
+bool ScanScanRegistrationFlow::UpdateData(void) {
+    scan_scan_registration_ptr_->Update(
         corner_points_sharp_.cloud_ptr,
         corner_points_less_sharp_.cloud_ptr,
         surf_points_flat_.cloud_ptr,
@@ -187,7 +187,7 @@ bool FrontEndFlow::UpdateData(void) {
     return true;
 }
 
-bool FrontEndFlow::PublishData(void) {
+bool ScanScanRegistrationFlow::PublishData(void) {
     static Eigen::Matrix4f gnss_to_odom = Eigen::Matrix4f::Identity();
     static int frame_count{0};
 

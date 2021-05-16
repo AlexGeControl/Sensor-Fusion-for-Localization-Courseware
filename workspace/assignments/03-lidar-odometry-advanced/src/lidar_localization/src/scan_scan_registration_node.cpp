@@ -1,7 +1,7 @@
 /*
- * @Description: LOAM scan registration node
+ * @Description: LOAM scan-scan registration node
  * @Author: Ge Yao
- * @Date: 2021-05-02 12:56:27
+ * @Date: 2021-05-09 14:38:03
  */
 #include <memory>
 
@@ -10,7 +10,8 @@
 
 #include <lidar_localization/saveMap.h>
 #include "lidar_localization/global_defination/global_defination.h"
-#include "lidar_localization/scan_registration/scan_registration_flow.hpp"
+
+#include "lidar_localization/scan_scan_registration/scan_scan_registration_flow.hpp"
 
 using namespace lidar_localization;
 
@@ -19,11 +20,11 @@ int main(int argc, char *argv[]) {
     FLAGS_log_dir = WORK_SPACE_PATH + "/Log";
     FLAGS_alsologtostderr = 1;
 
-    ros::init(argc, argv, "scan_registration_node");
+    ros::init(argc, argv, "scan_scan_registration_node");
     ros::NodeHandle nh;
 
     // register front end processing workflow:
-    std::unique_ptr<ScanRegistrationFlow> scan_registration_flow_ptr = std::make_unique<ScanRegistrationFlow>(nh);
+    std::unique_ptr<ScanScanRegistrationFlow> scan_scan_registration_ptr = std::make_unique<ScanScanRegistrationFlow>(nh);
 
     // process rate: 10Hz
     ros::Rate rate(10);
@@ -31,7 +32,7 @@ int main(int argc, char *argv[]) {
     while (ros::ok()) {
         ros::spinOnce();
 
-        scan_registration_flow_ptr->Run();
+        scan_scan_registration_ptr->Run();
 
         rate.sleep();
     }

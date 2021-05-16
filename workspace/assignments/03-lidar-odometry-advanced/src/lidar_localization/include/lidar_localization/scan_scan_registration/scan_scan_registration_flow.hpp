@@ -1,10 +1,10 @@
 /*
- * @Description: LOAM frontend facade
+ * @Description: LOAM scan-scan registration facade
  * @Author: Ge Yao
- * @Date: 2021-01-30 22:38:22
+ * @Date: 2021-05-09 14:38:03
  */
-#ifndef LIDAR_LOCALIZATION_FRONT_END_FLOW_HPP_
-#define LIDAR_LOCALIZATION_FRONT_END_FLOW_HPP_
+#ifndef LIDAR_LOCALIZATION_SCAN_SCAN_REGISTRATION_FLOW_HPP_
+#define LIDAR_LOCALIZATION_SCAN_SCAN_REGISTRATION_FLOW_HPP_
 
 #include <memory>
 
@@ -18,13 +18,13 @@
 #include "lidar_localization/publisher/cloud_publisher.hpp"
 #include "lidar_localization/publisher/odometry_publisher.hpp"
 
-#include "lidar_localization/front_end/front_end.hpp"
+#include "lidar_localization/scan_scan_registration/scan_scan_registration.hpp"
 
 namespace lidar_localization {
 
-class FrontEndFlow {
+class ScanScanRegistrationFlow {
   public:
-    FrontEndFlow(ros::NodeHandle& nh);
+    ScanScanRegistrationFlow(ros::NodeHandle& nh);
 
     bool Run();
 
@@ -69,7 +69,7 @@ class FrontEndFlow {
     CloudData surf_points_less_flat_;
 
     // LOAM front end implementation:
-    std::unique_ptr<FrontEnd> front_end_ptr_{nullptr};
+    std::unique_ptr<ScanScanRegistration> scan_scan_registration_ptr_{nullptr};
 
     // outputs:
     std::unique_ptr<CloudPublisher> mapping_full_points_pub_ptr_{nullptr};
@@ -82,4 +82,4 @@ class FrontEndFlow {
 
 } // namespace lidar_localization
 
-#endif // LIDAR_LOCALIZATION_FRONT_END_FLOW_HPP_
+#endif // LIDAR_LOCALIZATION_SCAN_SCAN_REGISTRATION_FLOW_HPP_

@@ -6,9 +6,12 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /GT1/gtOdometry1
+        - /GT1
         - /GT1/gtOdometry1/Shape1
         - /odometry1
+        - /odometry1/odomScanScan1/Shape1
+        - /odometry1/odomScanMap1/Shape1
+        - /mapping1
         - /scan1/raw_data1
       Splitter Ratio: 0.5
     Tree Height: 517
@@ -96,66 +99,13 @@ Visualization Manager:
             Shaft Length: 1
             Shaft Radius: 0.05000000074505806
             Value: Arrow
-          Topic: /gnss_odom
+          Topic: /odometry/ground_truth
           Unreliable: false
           Value: true
       Enabled: true
       Name: GT
     - Class: rviz/Group
       Displays:
-        - Alpha: 1
-          Buffer Length: 1
-          Class: rviz/Path
-          Color: 255; 85; 0
-          Enabled: true
-          Head Diameter: 0.30000001192092896
-          Head Length: 0.20000000298023224
-          Length: 0.30000001192092896
-          Line Style: Lines
-          Line Width: 0.10000000149011612
-          Name: odomPath
-          Offset:
-            X: 0
-            Y: 0
-            Z: 0
-          Pose Color: 255; 85; 255
-          Pose Style: None
-          Radius: 0.029999999329447746
-          Shaft Diameter: 0.10000000149011612
-          Shaft Length: 0.10000000149011612
-          Topic: /laser_odom_scan_to_map_path
-          Unreliable: false
-          Value: true
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 255; 255; 255
-          Color Transformer: FlatColor
-          Decay Time: 0
-          Enabled: false
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 63.10047912597656
-          Min Color: 0; 0; 0
-          Min Intensity: -0.0067862942814826965
-          Name: PointCloud2
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.05000000074505806
-          Style: Flat Squares
-          Topic: /kitti/velo/pointcloud/filtered
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: false
         - Angle Tolerance: 0.10000000149011612
           Class: rviz/Odometry
           Covariance:
@@ -188,6 +138,40 @@ Visualization Manager:
             Shaft Radius: 0.05000000074505806
             Value: Arrow
           Topic: /odometry/lidar/scan_to_scan
+          Unreliable: false
+          Value: true
+        - Angle Tolerance: 0.10000000149011612
+          Class: rviz/Odometry
+          Covariance:
+            Orientation:
+              Alpha: 0.5
+              Color: 255; 255; 127
+              Color Style: Unique
+              Frame: Local
+              Offset: 1
+              Scale: 1
+              Value: true
+            Position:
+              Alpha: 0.30000001192092896
+              Color: 204; 51; 204
+              Scale: 1
+              Value: true
+            Value: true
+          Enabled: true
+          Keep: 0
+          Name: odomScanMap
+          Position Tolerance: 0.10000000149011612
+          Shape:
+            Alpha: 1
+            Axes Length: 1
+            Axes Radius: 0.10000000149011612
+            Color: 170; 0; 127
+            Head Length: 0.30000001192092896
+            Head Radius: 0.10000000149011612
+            Shaft Length: 1
+            Shaft Radius: 0.05000000074505806
+            Value: Arrow
+          Topic: /odometry/lidar/scan_to_map
           Unreliable: false
           Value: true
       Enabled: true
@@ -269,9 +253,9 @@ Visualization Manager:
           Enabled: true
           Invert Rainbow: false
           Max Color: 255; 255; 255
-          Max Intensity: 50.13703155517578
+          Max Intensity: 50.14005661010742
           Min Color: 0; 0; 0
-          Min Intensity: -0.03667052835226059
+          Min Intensity: -0.027454303577542305
           Name: currPoints
           Position Transformer: XYZ
           Queue Size: 10
@@ -293,147 +277,27 @@ Visualization Manager:
           Axis: Z
           Channel Name: intensity
           Class: rviz/PointCloud2
-          Color: 255; 0; 0
-          Color Transformer: FlatColor
-          Decay Time: 0
-          Enabled: false
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 63.03843307495117
-          Min Color: 255; 0; 0
-          Min Intensity: -0.006431261543184519
-          Name: corner
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.20000000298023224
-          Style: Flat Squares
-          Topic: /mapping_corner
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: false
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 255; 0; 0
-          Color Transformer: FlatColor
-          Decay Time: 0
-          Enabled: false
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 63.0818977355957
-          Min Color: 0; 0; 0
-          Min Intensity: -0.005241604056209326
-          Name: surf
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.20000000298023224
-          Style: Flat Squares
-          Topic: /mapping_surf
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: false
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 0; 255; 0
-          Color Transformer: FlatColor
-          Decay Time: 0
-          Enabled: false
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 17.08800506591797
-          Min Color: 0; 0; 0
-          Min Intensity: -0.006790489889681339
-          Name: used_corner
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.5
-          Style: Flat Squares
-          Topic: /mapping_used_corner
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: false
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 0; 255; 0
-          Color Transformer: FlatColor
-          Decay Time: 0
-          Enabled: false
-          Invert Rainbow: false
-          Max Color: 0; 255; 0
-          Max Intensity: 63.0818977355957
-          Min Color: 0; 0; 0
-          Min Intensity: -0.005241604056209326
-          Name: used_surf
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.5
-          Style: Flat Squares
-          Topic: /mapping_used_surf
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: false
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
           Color: 255; 255; 255
-          Color Transformer: FlatColor
+          Color Transformer: Intensity
           Decay Time: 0
-          Enabled: false
+          Enabled: true
           Invert Rainbow: false
           Max Color: 255; 255; 255
-          Max Intensity: 21.062847137451172
+          Max Intensity: 50.12409591674805
           Min Color: 0; 0; 0
-          Min Intensity: -0.006625724025070667
+          Min Intensity: -0.013616133481264114
           Name: map_corner
           Position Transformer: XYZ
           Queue Size: 10
           Selectable: true
           Size (Pixels): 3
           Size (m): 0.10000000149011612
-          Style: Flat Squares
-          Topic: /mapping_map_corner
+          Style: Points
+          Topic: /mapping/pointcloud/sharp
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
-          Value: false
+          Value: true
         - Alpha: 1
           Autocompute Intensity Bounds: true
           Autocompute Value Bounds:
@@ -444,49 +308,26 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 255; 255
-          Color Transformer: FlatColor
+          Color Transformer: Intensity
           Decay Time: 0
-          Enabled: false
+          Enabled: true
           Invert Rainbow: false
           Max Color: 255; 255; 255
-          Max Intensity: 63.08392333984375
+          Max Intensity: 50.12409591674805
           Min Color: 0; 0; 0
-          Min Intensity: -0.00876065157353878
+          Min Intensity: -0.013616133481264114
           Name: map_surf
           Position Transformer: XYZ
           Queue Size: 10
           Selectable: true
           Size (Pixels): 3
           Size (m): 0.10000000149011612
-          Style: Flat Squares
-          Topic: /mapping_map_surf
+          Style: Points
+          Topic: /mapping/pointcloud/flat
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
-          Value: false
-        - Alpha: 1
-          Buffer Length: 1
-          Class: rviz/Path
-          Color: 25; 255; 0
-          Enabled: false
-          Head Diameter: 0.30000001192092896
-          Head Length: 0.20000000298023224
-          Length: 0.30000001192092896
-          Line Style: Lines
-          Line Width: 0.029999999329447746
-          Name: leftcameraPath
-          Offset:
-            X: 0
-            Y: 0
-            Z: 0
-          Pose Color: 255; 85; 255
-          Pose Style: None
-          Radius: 0.029999999329447746
-          Shaft Diameter: 0.10000000149011612
-          Shaft Length: 0.10000000149011612
-          Topic: /lc_path
-          Unreliable: false
-          Value: false
+          Value: true
       Enabled: true
       Name: mapping
     - Class: rviz/Group
@@ -641,7 +482,7 @@ Visualization Manager:
           Use Fixed Frame: true
           Use rainbow: true
           Value: false
-      Enabled: true
+      Enabled: false
       Name: scan
     - Class: rviz/Image
       Enabled: true
@@ -726,11 +567,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 12.023886680603027
+      Scale: 8.738448143005371
       Target Frame: velo_link
       Value: TopDownOrtho (rviz)
-      X: -1.5745420455932617
-      Y: -19.423297882080078
+      X: 9.19179630279541
+      Y: 19.633512496948242
     Saved: ~
 Window Geometry:
   Displays:
@@ -750,5 +591,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 2058
-  X: -1
-  Y: -22
+  X: 0
+  Y: 0

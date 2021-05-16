@@ -54,17 +54,17 @@ file(GLOB_RECURSE NODE_SRCS "src/*_node.cpp")
 
 list(REMOVE_ITEM ALL_SRCS ${NODE_SRCS})
 
-add_executable(scan_registration_node src/scan_registration_node.cpp ${ALL_SRCS})
-add_dependencies(scan_registration_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
-target_link_libraries(scan_registration_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
+add_executable(data_pretreat_node src/data_pretreat_node.cpp ${ALL_SRCS})
+add_dependencies(data_pretreat_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(data_pretreat_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
-add_executable(front_end_node src/front_end_node.cpp ${ALL_SRCS})
-add_dependencies(front_end_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
-target_link_libraries(front_end_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
+add_executable(scan_scan_registration_node src/scan_scan_registration_node.cpp ${ALL_SRCS})
+add_dependencies(scan_scan_registration_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(scan_scan_registration_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
-add_executable(aloam_laser_odometry_node src/aloam_laser_odometry_node.cpp ${ALL_SRCS})
-add_dependencies(aloam_laser_odometry_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
-target_link_libraries(aloam_laser_odometry_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
+add_executable(scan_map_registration_node src/scan_map_registration_node.cpp ${ALL_SRCS})
+add_dependencies(scan_map_registration_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(scan_map_registration_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
 add_executable(aloam_mapping_node src/aloam_mapping_node.cpp ${ALL_SRCS})
 add_dependencies(aloam_mapping_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
@@ -91,9 +91,9 @@ target_link_libraries(evaluation_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
 install(TARGETS
-        scan_registration_node
-        front_end_node
-        aloam_laser_odometry_node
+        data_pretreat_node
+        scan_scan_registration_node
+        scan_map_registration_node
         aloam_mapping_node
         evaluation_node
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

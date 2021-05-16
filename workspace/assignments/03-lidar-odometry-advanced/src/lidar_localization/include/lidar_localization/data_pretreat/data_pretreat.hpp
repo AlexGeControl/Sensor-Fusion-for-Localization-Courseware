@@ -1,10 +1,10 @@
 /*
- * @Description: scan registration workflow
+ * @Description: LOAM data pre-processing interface
  * @Author: Ge Yao
- * @Date: 2021-01-30 22:38:22
+ * @Date: 2021-05-09 14:38:03
  */
-#ifndef LIDAR_LOCALIZATION_SCAN_REGISTRATION_HPP_
-#define LIDAR_LOCALIZATION_SCAN_REGISTRATION_HPP_
+#ifndef LIDAR_LOCALIZATION_DATA_PRETREAT_HPP_
+#define LIDAR_LOCALIZATION_DATA_PRETREAT_HPP_
 
 #include <memory>
 
@@ -29,12 +29,12 @@ enum FeaturePoint {
   NUM_TYPES = 4
 };
 
-class ScanRegistration {
+class DataPretreat {
   public:
     static constexpr int kScanIndexSize = 64;
     static constexpr int kPointIndexSize = 400000;
 
-    ScanRegistration(void);
+    DataPretreat(void);
 
     bool Update(
       const CloudData& input_cloud, 
@@ -93,4 +93,4 @@ class ScanRegistration {
 
 } // namespace lidar_localization
 
-#endif // LIDAR_LOCALIZATION_SCAN_REGISTRATION_HPP_
+#endif // LIDAR_LOCALIZATION_DATA_PRETREAT_HPP_

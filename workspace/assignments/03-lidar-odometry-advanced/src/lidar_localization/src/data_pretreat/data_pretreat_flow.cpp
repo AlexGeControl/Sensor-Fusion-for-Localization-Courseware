@@ -1,9 +1,9 @@
 /*
- * @Description: scan registration facade
+ * @Description: LOAM data pre-processing facade
  * @Author: Ge Yao
- * @Date: 2021-01-30 22:38:22
+ * @Date: 2021-05-09 14:38:03
  */
-#include "lidar_localization/scan_registration/scan_registration_flow.hpp"
+#include "lidar_localization/data_pretreat/data_pretreat_flow.hpp"
 
 #include "glog/logging.h"
 
@@ -12,15 +12,15 @@
 
 namespace lidar_localization {
 
-ScanRegistrationFlow::ScanRegistrationFlow(ros::NodeHandle& nh) {
+DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh) {
     std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/config.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
     // subscriber to raw Velodyne measurements:
-    InitSubscribers(nh, config_node["scan_registration"]["subscriber"]);
+    InitSubscribers(nh, config_node["data_pretreat"]["subscriber"]);
 
     // scan registration workflow:
-    scan_registration_ptr_ = std::make_unique<ScanRegistration>();
+    data_pretreat_ptr_ = std::make_unique<DataPretreat>();
 
     filtered_cloud_data_.reset(new CloudData::CLOUD());
     corner_sharp_.reset(new CloudData::CLOUD());
@@ -29,10 +29,10 @@ ScanRegistrationFlow::ScanRegistrationFlow(ros::NodeHandle& nh) {
     surf_less_flat_.reset(new CloudData::CLOUD());
 
     // publishers of registered scans:
-    InitPublishers(nh, config_node["scan_registration"]["publisher"]);
+    InitPublishers(nh, config_node["data_pretreat"]["publisher"]);
 }
 
-bool ScanRegistrationFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node) {
+bool DataPretreatFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node) {
     cloud_sub_ptr_ = std::make_unique<CloudSubscriber>(
         nh, 
         config_node["velodyne"]["topic_name"].as<std::string>(), 
@@ -42,7 +42,7 @@ bool ScanRegistrationFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node
     return true;
 }
 
-bool ScanRegistrationFlow::InitPublishers(ros::NodeHandle& nh, const YAML::Node& config_node) {
+bool DataPretreatFlow::InitPublishers(ros::NodeHandle& nh, const YAML::Node& config_node) {
     // corner points:
     filtered_cloud_pub_ptr_ = std::make_unique<CloudPublisher>(
         nh, 
@@ -86,7 +86,7 @@ bool ScanRegistrationFlow::InitPublishers(ros::NodeHandle& nh, const YAML::Node&
     return true;
 }
 
-bool ScanRegistrationFlow::Run(void) {
+bool DataPretreatFlow::Run(void) {
     if (!ReadData()) {
         return false;
     }
@@ -105,7 +105,7 @@ bool ScanRegistrationFlow::Run(void) {
     return true;
 }
 
-bool ScanRegistrationFlow::ReadData(void) {
+bool DataPretreatFlow::ReadData(void) {
     cloud_sub_ptr_->ParseData(cloud_data_buff_);
 
     if ( cloud_data_buff_.empty() ) {
@@ -115,7 +115,7 @@ bool ScanRegistrationFlow::ReadData(void) {
     return true;
 }
 
-bool ScanRegistrationFlow::HasData(void) {
+bool DataPretreatFlow::HasData(void) {
     if ( cloud_data_buff_.empty() ) {
         return false;
     }
@@ -123,7 +123,7 @@ bool ScanRegistrationFlow::HasData(void) {
     return true;
 }
 
-bool ScanRegistrationFlow::ValidData() {
+bool DataPretreatFlow::ValidData() {
     current_cloud_data_ = cloud_data_buff_.front();
 
     cloud_data_buff_.pop_front();
@@ -131,8 +131,8 @@ bool ScanRegistrationFlow::ValidData() {
     return true;
 }
 
-bool ScanRegistrationFlow::UpdateData(void) {
-    scan_registration_ptr_->Update(
+bool DataPretreatFlow::UpdateData(void) {
+    data_pretreat_ptr_->Update(
         current_cloud_data_, 
         filtered_cloud_data_,
         corner_sharp_,
@@ -144,7 +144,7 @@ bool ScanRegistrationFlow::UpdateData(void) {
     return true;
 }
 
-bool ScanRegistrationFlow::PublishData(void) {
+bool DataPretreatFlow::PublishData(void) {
     filtered_cloud_pub_ptr_->Publish(filtered_cloud_data_, current_cloud_data_.time);
 
     corner_points_sharp_pub_ptr_->Publish(corner_sharp_, current_cloud_data_.time);

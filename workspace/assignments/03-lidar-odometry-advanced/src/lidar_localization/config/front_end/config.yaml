@@ -1,4 +1,4 @@
-scan_registration:
+data_pretreat:
     subscriber:
         velodyne:
             topic_name: /kitti/velo/pointcloud
@@ -44,7 +44,7 @@ scan_registration:
         filter:
             surf_less_flat:
                 leaf_size: [0.2, 0.2, 0.2]
-front_end:
+scan_scan_registration:
     publisher:
         sharp:
             topic_name: /mapping/pointcloud/sharp
@@ -58,7 +58,6 @@ front_end:
             topic_name: /mapping/pointcloud/full
             frame_id: velo_link
             queue_size: 100
-
         odometry:
             topic_name: /odometry/lidar/scan_to_scan
             frame_id: /map
@@ -70,10 +69,73 @@ front_end:
             queue_size: 100
     param:
         # max. num of iterations, scan-scan odometry estimation:
-        max_num_iteration: 5
+        max_num_iteration: 3
         # kdtree nearest-neighborhood thresh:
         distance_thresh: 25.0
         # lidar scan neighborhood thresh:
         scan_thresh: 2.50
         # mapping point cloud publish freq:
-        num_frames_skip: 5
+        num_frames_skip: 2
+scan_map_registration:
+    publisher:
+        odometry:
+            topic_name: /odometry/lidar/scan_to_map
+            frame_id: /map
+            child_frame_id: /velo_link
+            queue_size: 100
+        path:
+            topic_name: /trajectory/lidar/scan_to_map
+            frame_id: /map
+            queue_size: 100
+    param:
+        # down sampler for LOAM feature points:
+        filter:
+            sharp:
+                leaf_size: [0.4, 0.4, 0.4]
+            flat:
+                leaf_size: [0.8, 0.8, 0.8]
+        # submap:
+        submap:
+            resolution: 50.0
+            num_tiles_x: 21
+            num_tiles_y: 21
+            num_tiles_z: 11
+            num_tiles: 4851
+            reanchor_margin: 3
+            local_map_radius: 2
+        # matching:
+        matching:
+            # min. num of line feature points:
+            min_num_sharp_points: 10
+            # min. num of plane feature points:
+            min_num_flat_points: 50
+            # max. num of iterations, scan-map odometry estimation:
+            max_num_iteration: 3
+            # kdtree nearest-neighborhood thresh:
+            distance_thresh: 1.0
+        # lidar map publish freq:
+        num_frames_skip: 2
+evaluation:
+    subscriber:
+        odometry:
+            topic_name: /odometry/lidar/scan_to_map
+            frame_id: imu_link
+            queue_size: 100
+        velodyne:
+            topic_name: /kitti/velo/pointcloud
+            frame_id: velo_link
+            queue_size: 100
+        imu:
+            topic_name: /kitti/oxts/imu
+            frame_id: imu_link
+            queue_size: 100
+        gnss:
+            topic_name: /kitti/oxts/gps/fix
+            frame_id: imu_link
+            queue_size: 100
+    publisher:
+        odometry:
+            topic_name: /odometry/ground_truth
+            frame_id: map
+            child_frame_id: velo_link
+            queue_size: 100

@@ -103,6 +103,31 @@ bool CeresALOAMRegistration::AddPlaneFactor(
     return true;
 }
 
+/**
+  * @brief  add residual block for plane constraint from lidar frontend
+  * @param  source, source point
+  * @param  norm, normal direction of target plane
+  * @param  negative_oa_dot_norm
+  * @return void
+  */
+bool CeresALOAMRegistration::AddPlaneNormFactor(
+    const Eigen::Vector3d &source,
+    const Eigen::Vector3d &norm, const double &negative_oa_dot_norm
+) {
+    ceres::CostFunction *factor_plane = LidarPlaneNormFactor::Create(
+        source, 
+        norm, negative_oa_dot_norm
+    );
+
+    problem_.AddResidualBlock(
+        factor_plane,
+        config_.loss_function_ptr, 
+        param_.q, param_.t
+    );
+
+    return true;
+}
+
 bool CeresALOAMRegistration::Optimize() {
     // solve:
     ceres::Solver::Summary summary;

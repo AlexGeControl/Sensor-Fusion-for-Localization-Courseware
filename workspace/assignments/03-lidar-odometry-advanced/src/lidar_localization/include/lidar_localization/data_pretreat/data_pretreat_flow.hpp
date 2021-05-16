@@ -1,10 +1,10 @@
 /*
- * @Description: scan registration facade
+ * @Description: LOAM data pre-processing facade
  * @Author: Ge Yao
- * @Date: 2021-01-30 22:38:22
+ * @Date: 2021-05-09 14:38:03
  */
-#ifndef LIDAR_LOCALIZATION_SCAN_REGISTRATION_FLOW_HPP_
-#define LIDAR_LOCALIZATION_SCAN_REGISTRATION_FLOW_HPP_
+#ifndef LIDAR_LOCALIZATION_DATA_PRETREAT_FLOW_HPP_
+#define LIDAR_LOCALIZATION_DATA_PRETREAT_FLOW_HPP_
 
 #include <memory>
 
@@ -15,13 +15,13 @@
 #include "lidar_localization/subscriber/cloud_subscriber.hpp"
 #include "lidar_localization/publisher/cloud_publisher.hpp"
 
-#include "lidar_localization/scan_registration/scan_registration.hpp"
+#include "lidar_localization/data_pretreat/data_pretreat.hpp"
 
 namespace lidar_localization {
 
-class ScanRegistrationFlow {
+class DataPretreatFlow {
   public:
-    ScanRegistrationFlow(ros::NodeHandle& nh);
+    DataPretreatFlow(ros::NodeHandle& nh);
 
     bool Run();
 
@@ -42,7 +42,7 @@ class ScanRegistrationFlow {
     CloudData current_cloud_data_;
 
     // scan registration implementation:
-    std::unique_ptr<ScanRegistration> scan_registration_ptr_{nullptr};
+    std::unique_ptr<DataPretreat> data_pretreat_ptr_{nullptr};
     std::unique_ptr<CloudPublisher> filtered_cloud_pub_ptr_{nullptr};
     CloudData::CLOUD_PTR filtered_cloud_data_;
 
@@ -60,4 +60,4 @@ class ScanRegistrationFlow {
 
 } // namespace lidar_localization
 
-#endif // LIDAR_LOCALIZATION_SCAN_REGISTRATION_FLOW_HPP_
+#endif // LIDAR_LOCALIZATION_DATA_PRETREAT_FLOW_HPP_

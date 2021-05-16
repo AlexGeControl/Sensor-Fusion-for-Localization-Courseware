@@ -13,12 +13,11 @@
 namespace lidar_localization {
 
 EvaluationFlow::EvaluationFlow(ros::NodeHandle& nh) {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/dataset/config.yaml";
+    std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/config.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
-    InitSubscribers(nh, config_node["measurements"]);
-
-    gnss_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/gnss_odom", "/map", "/velo_link", 100);
+    InitSubscribers(nh, config_node["evaluation"]["subscriber"]);
+    InitPublishers(nh, config_node["evaluation"]["publisher"]);
 }
 
 bool EvaluationFlow::Run() {
@@ -50,22 +49,38 @@ bool EvaluationFlow::Run() {
 }
 
 bool EvaluationFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node) {
-    laser_odom_sub_ptr_ = std::make_shared<OdometrySubscriber>(
+    odom_scan_to_scan_sub_ptr_ = std::make_unique<OdometrySubscriber>(
         nh, 
-        "/laser_odom_scan_to_map", 1000
+        config_node["odometry"]["topic_name"].as<std::string>(), 
+        config_node["odometry"]["queue_size"].as<int>()
     );
 
-    lidar_to_imu_ptr_ = std::make_shared<TFListener>(
+    lidar_to_imu_ptr_ = std::make_unique<TFListener>(
         nh, 
-        config_node["imu"]["frame_id"].as<std::string>(), config_node["lidar"]["frame_id"].as<std::string>()
+        config_node["imu"]["frame_id"].as<std::string>(), 
+        config_node["velodyne"]["frame_id"].as<std::string>()
     );
-    imu_sub_ptr_ = std::make_shared<IMUSubscriber>(
+    imu_sub_ptr_ = std::make_unique<IMUSubscriber>(
         nh, 
-        config_node["imu"]["topic_name"].as<std::string>(), config_node["imu"]["queue_size"].as<int>()
+        config_node["imu"]["topic_name"].as<std::string>(), 
+        config_node["imu"]["queue_size"].as<int>()
     );
-    gnss_sub_ptr_ = std::make_shared<GNSSSubscriber>(
+    gnss_sub_ptr_ = std::make_unique<GNSSSubscriber>(
         nh, 
-        config_node["gnss"]["topic_name"].as<std::string>(), config_node["gnss"]["queue_size"].as<int>()
+        config_node["gnss"]["topic_name"].as<std::string>(), 
+        config_node["gnss"]["queue_size"].as<int>()
+    );
+
+    return true;
+}
+
+bool EvaluationFlow::InitPublishers(ros::NodeHandle& nh, const YAML::Node& config_node) {
+    odom_ground_truth_pub_ptr_ = std::make_unique<OdometryPublisher>(
+        nh, 
+        config_node["odometry"]["topic_name"].as<std::string>(),
+        config_node["odometry"]["frame_id"].as<std::string>(),
+        config_node["odometry"]["child_frame_id"].as<std::string>(),
+        config_node["odometry"]["queue_size"].as<int>()
     );
 
     return true;
@@ -74,7 +89,7 @@ bool EvaluationFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& conf
 bool EvaluationFlow::ReadData() {
     static bool evaluator_inited = false;
 
-    laser_odom_sub_ptr_->ParseData(laser_odom_data_buff_);
+    odom_scan_to_scan_sub_ptr_->ParseData(odom_scan_to_scan_buff_);
 
     static std::deque<IMUData> unsynced_imu_;
     static std::deque<GNSSData> unsynced_gnss_;
@@ -82,18 +97,18 @@ bool EvaluationFlow::ReadData() {
     imu_sub_ptr_->ParseData(unsynced_imu_);
     gnss_sub_ptr_->ParseData(unsynced_gnss_);
 
-    if ( laser_odom_data_buff_.empty() ) {
+    if ( odom_scan_to_scan_buff_.empty() ) {
         return false;
     }
         
-    double laser_odom_time = laser_odom_data_buff_.front().time;
+    double laser_odom_time = odom_scan_to_scan_buff_.front().time;
 
     bool valid_imu = IMUData::SyncData(unsynced_imu_, imu_data_buff_, laser_odom_time);
     bool valid_gnss = GNSSData::SyncData(unsynced_gnss_, gnss_data_buff_, laser_odom_time);
 
     if ( !evaluator_inited ) {
         if (!valid_imu || !valid_gnss) {
-            laser_odom_data_buff_.pop_front();
+            odom_scan_to_scan_buff_.pop_front();
             return false;
         }
         evaluator_inited = true;
@@ -126,7 +141,7 @@ bool EvaluationFlow::InitGNSS() {
 }
 
 bool EvaluationFlow::HasData() {
-    if ( laser_odom_data_buff_.empty() )
+    if ( odom_scan_to_scan_buff_.empty() )
         return false;
     if ( imu_data_buff_.empty() )
         return false;
@@ -137,13 +152,13 @@ bool EvaluationFlow::HasData() {
 }
 
 bool EvaluationFlow::ValidData() {
-    current_laser_odom_data_ = laser_odom_data_buff_.front();
+    odom_scan_to_scan_ = odom_scan_to_scan_buff_.front();
     current_imu_data_ = imu_data_buff_.front();
     current_gnss_data_ = gnss_data_buff_.front();
 
-    double d_time = current_laser_odom_data_.time - current_imu_data_.time;
+    double d_time = odom_scan_to_scan_.time - current_imu_data_.time;
     if (d_time < -0.08) {
-        laser_odom_data_buff_.pop_front();
+        odom_scan_to_scan_buff_.pop_front();
         return false;
     }
 
@@ -153,7 +168,7 @@ bool EvaluationFlow::ValidData() {
         return false;
     }
 
-    laser_odom_data_buff_.pop_front();
+    odom_scan_to_scan_buff_.pop_front();
     imu_data_buff_.pop_front();
     gnss_data_buff_.pop_front();
 
@@ -161,7 +176,7 @@ bool EvaluationFlow::ValidData() {
 }
 
 bool EvaluationFlow::UpdateLaserOdometry() {
-    laser_odometry_ = current_laser_odom_data_.pose;
+    laser_odometry_ = odom_scan_to_scan_.pose;
 
     return true;
 }
@@ -187,7 +202,7 @@ bool EvaluationFlow::UpdateGNSSOdometry() {
 
     gnss_odometry_ = gnss_to_odom * gnss_odometry_;
 
-    gnss_pub_ptr_->Publish(gnss_odometry_);
+    odom_ground_truth_pub_ptr_->Publish(gnss_odometry_);
 
     return true;
 }

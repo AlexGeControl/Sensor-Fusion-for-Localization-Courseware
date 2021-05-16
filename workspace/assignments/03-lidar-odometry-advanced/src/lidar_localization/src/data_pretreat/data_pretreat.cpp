@@ -1,9 +1,9 @@
 /*
- * @Description: scan registration facade
+ * @Description: LOAM data pre-processing implementation
  * @Author: Ge Yao
- * @Date: 2021-01-30 22:38:22
+ * @Date: 2021-05-09 14:38:03
  */
-#include "lidar_localization/scan_registration/scan_registration.hpp"
+#include "lidar_localization/data_pretreat/data_pretreat.hpp"
 
 #include "glog/logging.h"
 
@@ -22,18 +22,18 @@
 
 namespace lidar_localization {
 
-ScanRegistration::ScanRegistration(void) {
+DataPretreat::DataPretreat(void) {
     std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/config.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
     // set LOAM scan registration params:
-    InitParam(config_node["scan_registration"]["param"]);
+    InitParam(config_node["data_pretreat"]["param"]);
 
     // init filters:
-    InitFilters(config_node["scan_registration"]["param"]["filter"]);
+    InitFilters(config_node["data_pretreat"]["param"]["filter"]);
 }
 
-bool ScanRegistration::InitParam(const YAML::Node& config_node) {
+bool DataPretreat::InitParam(const YAML::Node& config_node) {
     config_.scan_period = config_node["scan_period"].as<float>();
 
     config_.num_scans = config_node["num_scans"].as<int>();
@@ -51,7 +51,7 @@ bool ScanRegistration::InitParam(const YAML::Node& config_node) {
     return true;
 }
 
-bool ScanRegistration::InitFilters(const YAML::Node& config_node) {
+bool DataPretreat::InitFilters(const YAML::Node& config_node) {
     surf_less_flat_filter_ptr_ = std::make_unique<pcl::VoxelGrid<CloudData::POINT>>();
 
     float leaf_size_x = config_node["surf_less_flat"]["leaf_size"][0].as<float>();
@@ -63,7 +63,7 @@ bool ScanRegistration::InitFilters(const YAML::Node& config_node) {
     return true;
 }
 
-bool ScanRegistration::Update(
+bool DataPretreat::Update(
     const CloudData& input_cloud, 
     CloudData::CLOUD_PTR &output_cloud,
     CloudData::CLOUD_PTR &corner_sharp,
@@ -85,7 +85,7 @@ bool ScanRegistration::Update(
     return true;
 }
 
-bool ScanRegistration::FilterByRange(
+bool DataPretreat::FilterByRange(
     const CloudData::CLOUD &input_cloud, 
     CloudData::CLOUD &output_cloud
 ) {
@@ -121,7 +121,7 @@ bool ScanRegistration::FilterByRange(
     return true;
 }
 
-bool ScanRegistration::GetScanId(const float &angle, int &scan_id) {
+bool DataPretreat::GetScanId(const float &angle, int &scan_id) {
     if (16 == config_.num_scans)
     {
         scan_id = int((angle + 15) / 2 + 0.5);
@@ -159,7 +159,7 @@ bool ScanRegistration::GetScanId(const float &angle, int &scan_id) {
     return true;
 }
 
-float ScanRegistration::GetCurvature(const CloudData::CLOUD &cloud, int point_index) {
+float DataPretreat::GetCurvature(const CloudData::CLOUD &cloud, int point_index) {
     Eigen::Vector3f d = Eigen::Vector3f::Zero();
 
     for (int i = -config_.neighborhood_size; i <= config_.neighborhood_size; ++i) {
@@ -173,7 +173,7 @@ float ScanRegistration::GetCurvature(const CloudData::CLOUD &cloud, int point_in
     return d.squaredNorm();
 }
 
-bool ScanRegistration::SortPointCloudByScan(const CloudData::CLOUD &input_cloud, CloudData::CLOUD &output_cloud) {
+bool DataPretreat::SortPointCloudByScan(const CloudData::CLOUD &input_cloud, CloudData::CLOUD &output_cloud) {
     // num. points:
     int input_size = input_cloud.points.size();
     // start & end measurements:
@@ -267,7 +267,7 @@ bool ScanRegistration::SortPointCloudByScan(const CloudData::CLOUD &input_cloud,
     return true;
 }
 
-bool ScanRegistration::PickInNeighborhood(const CloudData::CLOUD &cloud, const int point_index, const float thresh) {
+bool DataPretreat::PickInNeighborhood(const CloudData::CLOUD &cloud, const int point_index, const float thresh) {
     // forward:
     for (int i = 1; i <= config_.neighborhood_size; ++i)
     {
@@ -306,7 +306,7 @@ bool ScanRegistration::PickInNeighborhood(const CloudData::CLOUD &cloud, const i
     return true;
 }
 
-bool ScanRegistration::GetFeaturePoints(
+bool DataPretreat::GetFeaturePoints(
     const CloudData::CLOUD &cloud, 
     CloudData::CLOUD_PTR &corner_sharp,
     CloudData::CLOUD_PTR &corner_less_sharp,
@@ -344,7 +344,7 @@ bool ScanRegistration::GetFeaturePoints(
 
                     ++num_corners;
 
-                    if (num_corners <= 2)
+                    if (num_corners <= 4)
                     {                        
                         index_.point.label[ind] = FeaturePoint::CORNER_SHARP;
                         corner_sharp->push_back(cloud.points[ind]);
@@ -376,10 +376,10 @@ bool ScanRegistration::GetFeaturePoints(
                 {
 
                     index_.point.label[ind] = FeaturePoint::SURF_FLAT; 
-                    // surf_flat->push_back(cloud.points[ind]);
+                    surf_flat->push_back(cloud.points[ind]);
 
-                    num_surf++;
-                    if (num_surf >= 4)
+                    ++num_surf;
+                    if (num_surf >= 8)
                     { 
                         break;
                     }

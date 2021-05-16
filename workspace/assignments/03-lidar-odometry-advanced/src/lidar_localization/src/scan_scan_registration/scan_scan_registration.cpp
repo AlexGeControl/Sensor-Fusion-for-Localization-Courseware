@@ -1,9 +1,9 @@
 /*
- * @Description: scan registration facade
+ * @Description: scan-scan registration implementation
  * @Author: Ge Yao
- * @Date: 2021-01-30 22:38:22
+ * @Date: 2021-05-09 14:38:03
  */
-#include "lidar_localization/front_end/front_end.hpp"
+#include "lidar_localization/scan_scan_registration/scan_scan_registration.hpp"
 
 #include "glog/logging.h"
 
@@ -19,12 +19,12 @@
 
 namespace lidar_localization {
 
-FrontEnd::FrontEnd(void) {
+ScanScanRegistration::ScanScanRegistration(void) {
     std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/config.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
     // set LOAM front end params:
-    InitParam(config_node["front_end"]["param"]);
+    InitParam(config_node["scan_scan_registration"]["param"]);
 
     // init kdtrees for feature point association:
     InitKdTrees();
@@ -36,7 +36,7 @@ FrontEnd::FrontEnd(void) {
     t_ = Eigen::Vector3f::Zero();
 }
 
-bool FrontEnd::InitParam(const YAML::Node& config_node) {
+bool ScanScanRegistration::InitParam(const YAML::Node& config_node) {
     config_.scan_period = 0.10f;
     config_.max_num_iteration = config_node["max_num_iteration"].as<int>();
     config_.distance_thresh = config_node["distance_thresh"].as<float>();
@@ -45,14 +45,14 @@ bool FrontEnd::InitParam(const YAML::Node& config_node) {
     return true;
 }
 
-bool FrontEnd::InitKdTrees(void) {
+bool ScanScanRegistration::InitKdTrees(void) {
     kdtree_.corner.reset(new pcl::KdTreeFLANN<CloudData::POINT>());
     kdtree_.surface.reset(new pcl::KdTreeFLANN<CloudData::POINT>());
 
     return true;
 }
 
-bool FrontEnd::TransformToStart(const CloudData::POINT &input, CloudData::POINT &output) {
+bool ScanScanRegistration::TransformToStart(const CloudData::POINT &input, CloudData::POINT &output) {
     // interpolation ratio
     float ratio = (input.intensity - int(input.intensity)) / config_.scan_period;
 
@@ -69,7 +69,7 @@ bool FrontEnd::TransformToStart(const CloudData::POINT &input, CloudData::POINT 
     return true;
 }
 
-bool FrontEnd::AssociateCornerPoints(
+bool ScanScanRegistration::AssociateCornerPoints(
     const CloudData::CLOUD &corner_sharp,
     std::vector<CornerPointAssociation> &corner_point_associations
 ) {
@@ -167,14 +167,16 @@ bool FrontEnd::AssociateCornerPoints(
                 }
             }
 
-            corner_point_associations.push_back(corner_point_association);
+            if (corner_point_association.IsValid()) {
+                corner_point_associations.push_back(corner_point_association);
+            }
         }
     }
 
     return true;
 }
 
-bool FrontEnd::AssociateSurfacePoints(
+bool ScanScanRegistration::AssociateSurfacePoints(
     const CloudData::CLOUD &surf_flat,
     std::vector<SurfacePointAssociation> &surface_point_associations
 ) {
@@ -277,35 +279,39 @@ bool FrontEnd::AssociateSurfacePoints(
                 }
             }
 
-            surface_point_associations.push_back(surface_point_association);
+            if (surface_point_association.IsValid()) {
+                surface_point_associations.push_back(surface_point_association);
+            }
         }
     }
 
     return true;
 }
 
-bool FrontEnd::AddEdgeFactors(
+int ScanScanRegistration::AddEdgeFactors(
     const CloudData::CLOUD &corner_sharp,
     const std::vector<CornerPointAssociation> &corner_point_associations,
     CeresALOAMRegistration &aloam_registration
 ) {
+    int num_factors{0};
+
     for (const auto &corner_point_association: corner_point_associations) {
         Eigen::Vector3d source{
-            corner_sharp.points[corner_point_association.query_index].x,
-            corner_sharp.points[corner_point_association.query_index].y,
-            corner_sharp.points[corner_point_association.query_index].z
+            corner_sharp.points.at(corner_point_association.query_index).x,
+            corner_sharp.points.at(corner_point_association.query_index).y,
+            corner_sharp.points.at(corner_point_association.query_index).z
         };
 
         Eigen::Vector3d target_x{
-            kdtree_.candidate_corner_ptr->points[corner_point_association.associated_x_index].x,
-            kdtree_.candidate_corner_ptr->points[corner_point_association.associated_x_index].y,
-            kdtree_.candidate_corner_ptr->points[corner_point_association.associated_x_index].z
+            kdtree_.candidate_corner_ptr->points.at(corner_point_association.associated_x_index).x,
+            kdtree_.candidate_corner_ptr->points.at(corner_point_association.associated_x_index).y,
+            kdtree_.candidate_corner_ptr->points.at(corner_point_association.associated_x_index).z
         };
     
         Eigen::Vector3d target_y{
-            kdtree_.candidate_corner_ptr->points[corner_point_association.associated_y_index].x,
-            kdtree_.candidate_corner_ptr->points[corner_point_association.associated_y_index].y,
-            kdtree_.candidate_corner_ptr->points[corner_point_association.associated_y_index].z
+            kdtree_.candidate_corner_ptr->points.at(corner_point_association.associated_y_index).x,
+            kdtree_.candidate_corner_ptr->points.at(corner_point_association.associated_y_index).y,
+            kdtree_.candidate_corner_ptr->points.at(corner_point_association.associated_y_index).z
         };
 
         aloam_registration.AddEdgeFactor(
@@ -313,39 +319,43 @@ bool FrontEnd::AddEdgeFactors(
             target_x, target_y,
             corner_point_association.ratio
         );
+
+        ++num_factors;
     }
 
-    return true;
+    return num_factors;
 }
 
-bool FrontEnd::AddPlaneFactors(
+int ScanScanRegistration::AddPlaneFactors(
     const CloudData::CLOUD &surf_flat,
     const std::vector<SurfacePointAssociation> &surface_point_associations,
     CeresALOAMRegistration &aloam_registration
 ) {
+    int num_factors{0};
+
     for (const auto &surface_point_association: surface_point_associations) {
         Eigen::Vector3d source{
-            surf_flat.points[surface_point_association.query_index].x,
-            surf_flat.points[surface_point_association.query_index].y,
-            surf_flat.points[surface_point_association.query_index].z
+            surf_flat.points.at(surface_point_association.query_index).x,
+            surf_flat.points.at(surface_point_association.query_index).y,
+            surf_flat.points.at(surface_point_association.query_index).z
         };
 
         Eigen::Vector3d target_x{
-            kdtree_.candidate_surface_ptr->points[surface_point_association.associated_x_index].x,
-            kdtree_.candidate_surface_ptr->points[surface_point_association.associated_x_index].y,
-            kdtree_.candidate_surface_ptr->points[surface_point_association.associated_x_index].z
+            kdtree_.candidate_surface_ptr->points.at(surface_point_association.associated_x_index).x,
+            kdtree_.candidate_surface_ptr->points.at(surface_point_association.associated_x_index).y,
+            kdtree_.candidate_surface_ptr->points.at(surface_point_association.associated_x_index).z
         };
     
         Eigen::Vector3d target_y{
-            kdtree_.candidate_surface_ptr->points[surface_point_association.associated_y_index].x,
-            kdtree_.candidate_surface_ptr->points[surface_point_association.associated_y_index].y,
-            kdtree_.candidate_surface_ptr->points[surface_point_association.associated_y_index].z
+            kdtree_.candidate_surface_ptr->points.at(surface_point_association.associated_y_index).x,
+            kdtree_.candidate_surface_ptr->points.at(surface_point_association.associated_y_index).y,
+            kdtree_.candidate_surface_ptr->points.at(surface_point_association.associated_y_index).z
         };
 
         Eigen::Vector3d target_z{
-            kdtree_.candidate_surface_ptr->points[surface_point_association.associated_z_index].x,
-            kdtree_.candidate_surface_ptr->points[surface_point_association.associated_z_index].y,
-            kdtree_.candidate_surface_ptr->points[surface_point_association.associated_z_index].z
+            kdtree_.candidate_surface_ptr->points.at(surface_point_association.associated_z_index).x,
+            kdtree_.candidate_surface_ptr->points.at(surface_point_association.associated_z_index).y,
+            kdtree_.candidate_surface_ptr->points.at(surface_point_association.associated_z_index).z
         };
 
         aloam_registration.AddPlaneFactor(
@@ -353,12 +363,14 @@ bool FrontEnd::AddPlaneFactors(
             target_x, target_y, target_z,
             surface_point_association.ratio
         );
+
+        ++num_factors;
     }
 
-    return true;
+    return num_factors;
 }
 
-bool FrontEnd::SetTargetPoints(
+bool ScanScanRegistration::SetTargetPoints(
     const CloudData::CLOUD &corner_less_sharp,
     const CloudData::CLOUD &surf_less_flat
 ) {
@@ -377,7 +389,7 @@ bool FrontEnd::SetTargetPoints(
     return true;
 }
 
-bool FrontEnd::UpdateOdometry(Eigen::Matrix4f& lidar_odometry) {
+bool ScanScanRegistration::UpdateOdometry(Eigen::Matrix4f& lidar_odometry) {
     q_ = q_ * dq_;
     t_ = q_ * dt_ + t_;
 
@@ -387,7 +399,7 @@ bool FrontEnd::UpdateOdometry(Eigen::Matrix4f& lidar_odometry) {
     return true;
 }
 
-bool FrontEnd::Update(
+bool ScanScanRegistration::Update(
     CloudData::CLOUD_PTR corner_sharp,
     CloudData::CLOUD_PTR corner_less_sharp,
     CloudData::CLOUD_PTR surf_flat,
@@ -397,6 +409,7 @@ bool FrontEnd::Update(
     // feature point association:
     if ( inited_ ) {
         // iterative optimization:
+        // LOG(WARNING) << "Scan-Scan Registration: " << std::endl;
         for (int i = 0; i < config_.max_num_iteration; ++i) {
             std::vector<CornerPointAssociation> corner_point_associations;
             AssociateCornerPoints(*corner_sharp, corner_point_associations);
@@ -410,12 +423,14 @@ bool FrontEnd::Update(
 
             // build problem:
             CeresALOAMRegistration aloam_registration(dq_, dt_);
-            AddEdgeFactors(*corner_sharp, corner_point_associations, aloam_registration);
-            AddPlaneFactors(*surf_flat, surface_point_associations, aloam_registration);
+            const auto num_edge_factors = AddEdgeFactors(*corner_sharp, corner_point_associations, aloam_registration);
+            const auto num_plane_factors = AddPlaneFactors(*surf_flat, surface_point_associations, aloam_registration);
 
             // get relative pose:
             aloam_registration.Optimize();
             aloam_registration.GetOptimizedRelativePose(dq_, dt_);
+
+            // LOG(WARNING) << "\tIter. " << i + 1 << ": num edges " << num_edge_factors << ", num planes " << num_plane_factors << std::endl;
         }
 
         // update odometry:

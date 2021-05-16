@@ -56,6 +56,18 @@ public:
       const double &ratio
     );
 
+    /**
+     * @brief  add residual block for plane constraint from lidar frontend
+     * @param  source, source point
+     * @param  norm, normal direction of target plane
+     * @param  negative_oa_dot_norm
+     * @return void
+     */
+    bool AddPlaneNormFactor(
+      const Eigen::Vector3d &source,
+      const Eigen::Vector3d &norm, const double &negative_oa_dot_norm
+    );
+
     // do optimization
     bool Optimize();
 
