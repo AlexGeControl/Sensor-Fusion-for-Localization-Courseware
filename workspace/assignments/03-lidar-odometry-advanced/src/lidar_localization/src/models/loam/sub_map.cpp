@@ -30,6 +30,9 @@ SubMap::SubMap(const SubMap::Config& config) {
         tiles_.flat.at(i).reset(new CloudData::CLOUD());
     }
 
+    recently_accessed_.sharp.clear();
+    recently_accessed_.flat.clear();
+
     // init center index:
     center_.x = config_.num_tiles_x >> 1;
     center_.y = config_.num_tiles_y >> 1;
@@ -37,7 +40,7 @@ SubMap::SubMap(const SubMap::Config& config) {
 }
 
 SubMap::LocalMap SubMap::GetLocalMap(
-    const Eigen::Vector3f &query_position
+    const Eigen::Vector3d &query_position
 ) {
     // first, convert query position to tile index:
     auto query_index = GetTileIndex(query_position);
@@ -51,49 +54,38 @@ SubMap::LocalMap SubMap::GetLocalMap(
 
 bool SubMap::RegisterLineFeaturePoints(
     const CloudData::CLOUD_PTR points, 
-    const Eigen::Quaternionf& q, const Eigen::Vector3f& t
+    const Eigen::Quaterniond& q, const Eigen::Vector3d& t
 ) {
-    return RegisterFeaturePoints(points, q, t, tiles_.sharp);
+    return RegisterFeaturePoints(points, q, t, tiles_.sharp, recently_accessed_.sharp);
 }
 
 bool SubMap::RegisterPlaneFeaturePoints(
     const CloudData::CLOUD_PTR points, 
-    const Eigen::Quaternionf& q, const Eigen::Vector3f& t
+    const Eigen::Quaterniond& q, const Eigen::Vector3d& t
 ) {
-    return RegisterFeaturePoints(points, q, t, tiles_.flat);
+    return RegisterFeaturePoints(points, q, t, tiles_.flat, recently_accessed_.flat);
 }
 
-bool SubMap::DownsampleLocalMap(
-    const SubMap::Index &query_index,
+bool SubMap::DownsampleSubMap(
     std::unique_ptr<CloudFilterInterface>& sharp_filter_ptr,
     std::unique_ptr<CloudFilterInterface>& flat_filter_ptr
 ) {
-    const auto local_map_radius = config_.local_map_radius;
-    for (int dx = -local_map_radius; dx <= local_map_radius; ++dx) {
-        for (int dy = -local_map_radius; dy <= local_map_radius; ++dy) {
-            for (int dz = -(local_map_radius >> 1); dz <= (local_map_radius >> 1); ++dz) {
-                const SubMap::Index curr_tile_index{
-                    query_index.x + dx, 
-                    query_index.y + dy, 
-                    query_index.z + dz
-                };
-
-                if (IsValidIndex(curr_tile_index)) {
-                    const auto curr_tile_id = GetTileId(curr_tile_index);
-
-                    auto& curr_sharp_tile = tiles_.sharp.at(curr_tile_id);
-                    auto& curr_flat_tile = tiles_.flat.at(curr_tile_id);
-
-                    sharp_filter_ptr->Filter(curr_sharp_tile, curr_sharp_tile);
-                    flat_filter_ptr->Filter(curr_flat_tile, curr_flat_tile);
-                }
-            }
-        }
+    for (const auto &sharp_tile_id: recently_accessed_.sharp) {
+        auto& curr_sharp_tile = tiles_.sharp.at(sharp_tile_id);
+        sharp_filter_ptr->Filter(curr_sharp_tile, curr_sharp_tile);
     }
+    recently_accessed_.sharp.clear();
+
+    for (const auto &flat_tile_id: recently_accessed_.flat) {
+        auto& curr_flat_tile = tiles_.sharp.at(flat_tile_id);
+        flat_filter_ptr->Filter(curr_flat_tile, curr_flat_tile);
+    }
+    recently_accessed_.flat.clear();
+
     return true;
 }
 
-SubMap::Index SubMap::GetTileIndex(const Eigen::Vector3f &t) {
+SubMap::Index SubMap::GetTileIndex(const Eigen::Vector3d &t) {
     Index index;
     
     const double& resolution = config_.resolution;
@@ -112,7 +104,7 @@ SubMap::Index SubMap::GetTileIndex(const Eigen::Vector3f &t) {
 }
 
 SubMap::Index SubMap::GetTileIndex(const CloudData::POINT &point) {
-    Eigen::Vector3f t{
+    Eigen::Vector3d t{
         point.x, point.y, point.z
     };
 
@@ -380,11 +372,11 @@ SubMap::LocalMap SubMap::GetLocalMap(
 
 bool SubMap::ProjectToMapFrame(
     const CloudData::POINT &input,
-    const Eigen::Quaternionf& q, const Eigen::Vector3f& t,
+    const Eigen::Quaterniond& q, const Eigen::Vector3d& t,
     CloudData::POINT &output
 ) {
-    Eigen::Vector3f x{input.x, input.y, input.z};
-	Eigen::Vector3f y = q * x + t;
+    Eigen::Vector3d x{input.x, input.y, input.z};
+	Eigen::Vector3d y = q * x + t;
 
 	output.x = y.x();
 	output.y = y.y();
@@ -397,8 +389,9 @@ bool SubMap::ProjectToMapFrame(
 
 bool SubMap::RegisterFeaturePoints(
     const CloudData::CLOUD_PTR points, 
-    const Eigen::Quaternionf& q, const Eigen::Vector3f& t,
-    std::vector<CloudData::CLOUD_PTR> &tiles
+    const Eigen::Quaterniond& q, const Eigen::Vector3d& t,
+    std::vector<CloudData::CLOUD_PTR> &tiles,
+    std::set<size_t>& recently_accessed
 ) {
     const auto num_feature_points = points->points.size();
 
@@ -416,6 +409,7 @@ bool SubMap::RegisterFeaturePoints(
         {
             const auto associated_tile_id = GetTileId(associated_tile_index);
             tiles.at(associated_tile_id)->push_back(feature_point_in_map_frame);
+            recently_accessed.insert(associated_tile_id);
         }
     }
 

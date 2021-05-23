@@ -29,11 +29,11 @@ ScanScanRegistration::ScanScanRegistration(void) {
     // init kdtrees for feature point association:
     InitKdTrees();
 
-    dq_ = Eigen::Quaternionf::Identity();
-    dt_ = Eigen::Vector3f::Zero();
+    dq_ = Eigen::Quaterniond::Identity();
+    dt_ = Eigen::Vector3d::Zero();
 
-    q_ = Eigen::Quaternionf::Identity();
-    t_ = Eigen::Vector3f::Zero();
+    q_ = Eigen::Quaterniond::Identity();
+    t_ = Eigen::Vector3d::Zero();
 }
 
 bool ScanScanRegistration::InitParam(const YAML::Node& config_node) {
@@ -42,8 +42,8 @@ bool ScanScanRegistration::InitParam(const YAML::Node& config_node) {
     config_.distance_thresh = config_node["distance_thresh"].as<float>();
     config_.scan_thresh = config_node["scan_thresh"].as<float>();
 
-    config_.registration_config.set_num_threads(4)
-                               .set_max_num_iterations(4)
+    config_.registration_config.set_num_threads(1)
+                               .set_max_num_iterations(5)
                                .set_max_solver_time_in_seconds(0.05);
     return true;
 }
@@ -59,10 +59,10 @@ bool ScanScanRegistration::TransformToStart(const CloudData::POINT &input, Cloud
     // interpolation ratio
     float ratio = (input.intensity - int(input.intensity)) / config_.scan_period;
 
-    Eigen::Quaternionf dq = Eigen::Quaternionf::Identity().slerp(ratio, dq_);
-    Eigen::Vector3f dt = ratio * dt_;
-    Eigen::Vector3f p(input.x, input.y, input.z);
-    Eigen::Vector3f undistorted = dq * p + dt;
+    Eigen::Quaterniond dq = Eigen::Quaterniond::Identity().slerp(ratio, dq_);
+    Eigen::Vector3d dt = ratio * dt_;
+    Eigen::Vector3d p(input.x, input.y, input.z);
+    Eigen::Vector3d undistorted = dq * p + dt;
 
     output.x = undistorted.x();
     output.y = undistorted.y();
@@ -96,7 +96,7 @@ bool ScanScanRegistration::AssociateCornerPoints(
             CornerPointAssociation corner_point_association;
 
             corner_point_association.query_index = i;
-            corner_point_association.ratio = 1.0; // (query_point.intensity - int(query_point.intensity)) / config_.scan_period;
+            corner_point_association.ratio = (query_point.intensity - int(query_point.intensity)) / config_.scan_period;
 
             // set the first associated point as the closest point:
             corner_point_association.associated_x_index = result_indices[0];
@@ -125,7 +125,7 @@ bool ScanScanRegistration::AssociateCornerPoints(
                     break;
 
                 // calculate deviation:
-                Eigen::Vector3f deviation{
+                Eigen::Vector3d deviation{
                     candidate_point[j].x - query_point.x,
                     candidate_point[j].y - query_point.y,
                     candidate_point[j].z - query_point.z
@@ -155,7 +155,7 @@ bool ScanScanRegistration::AssociateCornerPoints(
                     break;
 
                 // calculate deviation:
-                Eigen::Vector3f deviation{
+                Eigen::Vector3d deviation{
                     candidate_point[j].x - query_point.x,
                     candidate_point[j].y - query_point.y,
                     candidate_point[j].z - query_point.z
@@ -202,7 +202,7 @@ bool ScanScanRegistration::AssociateSurfacePoints(
             SurfacePointAssociation surface_point_association;
 
             surface_point_association.query_index = i;
-            surface_point_association.ratio = 1.0; // (query_point.intensity - int(query_point.intensity)) / config_.scan_period;
+            surface_point_association.ratio = (query_point.intensity - int(query_point.intensity)) / config_.scan_period;
 
             // set the first associated point as the closest point:
             surface_point_association.associated_x_index = result_indices[0];
@@ -228,7 +228,7 @@ bool ScanScanRegistration::AssociateSurfacePoints(
                     break;
 
                 // calculate deviation:
-                Eigen::Vector3f deviation{
+                Eigen::Vector3d deviation{
                     candidate_point[j].x - query_point.x,
                     candidate_point[j].y - query_point.y,
                     candidate_point[j].z - query_point.z
@@ -261,7 +261,7 @@ bool ScanScanRegistration::AssociateSurfacePoints(
                     break;
 
                 // calculate deviation:
-                Eigen::Vector3f deviation{
+                Eigen::Vector3d deviation{
                     candidate_point[j].x - query_point.x,
                     candidate_point[j].y - query_point.y,
                     candidate_point[j].z - query_point.z
@@ -396,8 +396,8 @@ bool ScanScanRegistration::UpdateOdometry(Eigen::Matrix4f& lidar_odometry) {
     q_ = q_ * dq_;
     t_ = q_ * dt_ + t_;
 
-    lidar_odometry.block<3, 3>(0, 0) = q_.toRotationMatrix();
-    lidar_odometry.block<3, 1>(0, 3) = t_;
+    lidar_odometry.block<3, 3>(0, 0) = q_.toRotationMatrix().cast<float>();
+    lidar_odometry.block<3, 1>(0, 3) = t_.cast<float>();
 
     return true;
 }

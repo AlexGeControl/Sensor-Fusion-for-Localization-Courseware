@@ -70,8 +70,8 @@ class ScanMapRegistration {
     // odometry:
     //
     struct Pose {
-      Eigen::Quaternionf q = Eigen::Quaternionf::Identity();
-      Eigen::Vector3f t = Eigen::Vector3f::Zero();
+      Eigen::Quaterniond q = Eigen::Quaterniond::Identity();
+      Eigen::Vector3d t = Eigen::Vector3d::Zero();
     };
 
     struct {

@@ -10,6 +10,8 @@
 #include "lidar_localization/tools/file_manager.hpp"
 #include "lidar_localization/global_defination/global_defination.h"
 
+#include <chrono>
+
 #include <limits>
 #include <math.h>
 
@@ -48,11 +50,13 @@ bool ScanMapRegistration::Update(
 
     // predict scan-map odometry:
     PredictScanMapOdometry(odom_scan_to_scan);
-
+    
+    auto timestamp_local_map = std::chrono::steady_clock::now();
     // get local map:
     auto local_map = submap_ptr_->GetLocalMap(pose_.scan_map_odometry.t);
 
     // if sufficient feature points for matching have been found:
+    auto timestamp_estimation = std::chrono::steady_clock::now();
     if ( HasSufficientFeaturePoints(local_map) ) {
         // set targets:
         SetTargetPoints(local_map);
@@ -80,14 +84,32 @@ bool ScanMapRegistration::Update(
     UpdateRelativePose();
 
     // register feature points:
+    auto timestamp_registration = std::chrono::steady_clock::now();
     submap_ptr_->RegisterLineFeaturePoints(filtered_sharp_points, pose_.scan_map_odometry.q, pose_.scan_map_odometry.t);
     submap_ptr_->RegisterPlaneFeaturePoints(filtered_flat_points, pose_.scan_map_odometry.q, pose_.scan_map_odometry.t);
 
     // downsample local map:
-    // submap_ptr_->DownsampleLocalMap(
-    //     local_map.query_index, 
-    //     filter_.sharp_filter_ptr_, filter_.flat_filter_ptr_
-    // );
+    auto timestamp_downsample = std::chrono::steady_clock::now();
+    static int dowmsample_count{0};
+    if (0 == ++dowmsample_count % 5) {
+        submap_ptr_->DownsampleSubMap(
+            filter_.sharp_filter_ptr_, filter_.flat_filter_ptr_
+        );
+
+        dowmsample_count = 0;
+    }
+
+    auto timestamp_done = std::chrono::steady_clock::now();
+
+    std::chrono::duration<double> duration_local_map = timestamp_estimation - timestamp_local_map;
+    std::chrono::duration<double> duration_estimation = timestamp_registration - timestamp_estimation;
+    std::chrono::duration<double> duration_registration = timestamp_downsample - timestamp_registration;
+    std::chrono::duration<double> duration_downsample = timestamp_done - timestamp_downsample;
+
+    LOG(WARNING) << "\t Local Map Extraction: " << duration_local_map.count() << std::endl;
+    LOG(WARNING) << "\t Relative Pose Estimation: " << duration_estimation.count() << std::endl;
+    LOG(WARNING) << "\t Measurement Registration: " << duration_registration.count() << std::endl;
+    LOG(WARNING) << "\t Sub Map Downsampling: " << duration_downsample.count() << std::endl;
 
     // update odometry:
     UpdateOdometry(lidar_odometry);
@@ -101,9 +123,9 @@ bool ScanMapRegistration::InitParams(const YAML::Node& config_node) {
     config_.max_num_iteration = config_node["max_num_iteration"].as<int>();
     config_.distance_thresh = config_node["distance_thresh"].as<double>();
 
-    config_.registration_config.set_num_threads(4)
-                               .set_max_num_iterations(4)
-                               .set_max_solver_time_in_seconds(0.10);
+    config_.registration_config.set_num_threads(1)
+                               .set_max_num_iterations(25)
+                               .set_max_solver_time_in_seconds(0.15);
 
     return true;
 }
@@ -166,10 +188,10 @@ bool ScanMapRegistration::ProjectToMapFrame(
     const CloudData::POINT &input,
     CloudData::POINT &output
 ) {
-    Eigen::Vector3f x{
+    Eigen::Vector3d x{
         input.x, input.y, input.z
     };
-    Eigen::Vector3f y = pose_.scan_map_odometry.q * x + pose_.scan_map_odometry.t;
+    Eigen::Vector3d y = pose_.scan_map_odometry.q * x + pose_.scan_map_odometry.t;
 
     output.x = y.x();
     output.y = y.y();
@@ -326,8 +348,8 @@ int ScanMapRegistration::AddPlaneFactors(
 
 bool ScanMapRegistration::PredictScanMapOdometry(const Eigen::Matrix4f& odom_scan_to_scan) {
     // set scan-scan estimation:
-    pose_.scan_scan_odometry.q = odom_scan_to_scan.block<3, 3>(0, 0);
-    pose_.scan_scan_odometry.t = odom_scan_to_scan.block<3, 1>(0, 3);
+    pose_.scan_scan_odometry.q = odom_scan_to_scan.block<3, 3>(0, 0).cast<double>();
+    pose_.scan_scan_odometry.t = odom_scan_to_scan.block<3, 1>(0, 3).cast<double>();
 
     // predict scan-map estimation:
     const auto& dq = pose_.relative.q;
@@ -348,8 +370,8 @@ bool ScanMapRegistration::UpdateRelativePose(void) {
 }
 
 bool ScanMapRegistration::UpdateOdometry(Eigen::Matrix4f& lidar_odometry) {
-    lidar_odometry.block<3, 3>(0, 0) = pose_.scan_map_odometry.q.toRotationMatrix();
-    lidar_odometry.block<3, 1>(0, 3) = pose_.scan_map_odometry.t;
+    lidar_odometry.block<3, 3>(0, 0) = pose_.scan_map_odometry.q.toRotationMatrix().cast<float>();
+    lidar_odometry.block<3, 1>(0, 3) = pose_.scan_map_odometry.t.cast<float>();
 
     return true;
 }

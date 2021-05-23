@@ -20,6 +20,7 @@ DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh) {
     InitSubscribers(nh, config_node["data_pretreat"]["subscriber"]);
 
     // scan registration workflow:
+    InitMotionCompensator();
     data_pretreat_ptr_ = std::make_unique<DataPretreat>();
 
     filtered_cloud_data_.reset(new CloudData::CLOUD());
@@ -33,6 +34,17 @@ DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh) {
 }
 
 bool DataPretreatFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node) {
+    velocity_sub_ptr_ = std::make_unique<VelocitySubscriber>(
+        nh, 
+        "/kitti/oxts/gps/vel", 1000000
+    );
+
+    lidar_to_imu_ptr_ = std::make_unique<TFListener>(
+        nh, 
+        "/imu_link", 
+        "/velo_link"
+    );
+
     cloud_sub_ptr_ = std::make_unique<CloudSubscriber>(
         nh, 
         config_node["velodyne"]["topic_name"].as<std::string>(), 
@@ -40,6 +52,10 @@ bool DataPretreatFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& co
     );
 
     return true;
+}
+
+bool DataPretreatFlow::InitMotionCompensator(void) {
+    motion_compensator_ptr_ = std::make_unique<DistortionAdjust>();
 }
 
 bool DataPretreatFlow::InitPublishers(ros::NodeHandle& nh, const YAML::Node& config_node) {
@@ -87,13 +103,18 @@ bool DataPretreatFlow::InitPublishers(ros::NodeHandle& nh, const YAML::Node& con
 }
 
 bool DataPretreatFlow::Run(void) {
-    if (!ReadData()) {
+    if (!InitCalibration()) {
+        // LOG(WARNING) << "DataPretreatFlow: InitCalibration..." << std::endl;
         return false;
     }
 
-    while( HasData() ) {
-        // fetch Velodyne measurement:
-        ValidData();
+    if (!ReadData()) {
+        // LOG(WARNING) << "DataPretreatFlow: ReadData..." << std::endl;
+        return false;
+    }
+
+    while( HasData() && ValidData()) {
+        // LOG(WARNING) << "DataPretreatFlow: Do update..." << std::endl;
 
         // update velodyne measurement:
         UpdateData();
@@ -105,18 +126,48 @@ bool DataPretreatFlow::Run(void) {
     return true;
 }
 
+bool DataPretreatFlow::InitCalibration(void) {
+    // lookup imu pose in lidar frame:
+    static bool calibration_received = false;
+    if (!calibration_received) {
+        if (lidar_to_imu_ptr_->LookupData(lidar_to_imu_)) {
+            calibration_received = true;
+        }
+    }
+
+    return calibration_received;
+}
+
 bool DataPretreatFlow::ReadData(void) {
+    static std::deque<VelocityData> unsynced_velocity_;
+
     cloud_sub_ptr_->ParseData(cloud_data_buff_);
+    velocity_sub_ptr_->ParseData(unsynced_velocity_);
 
     if ( cloud_data_buff_.empty() ) {
         return false;
+    }
+
+    // use timestamp of lidar measurement as reference:
+    double cloud_time = cloud_data_buff_.front().time;
+    // sync velocity and GNSS with lidar measurement:
+    bool valid_velocity = VelocityData::SyncData(unsynced_velocity_, velocity_data_buff_, cloud_time);
+
+    // only mark lidar as 'inited' when all the three sensors are synced:
+    static bool sensor_inited = false;
+    if (!sensor_inited) {
+        if (!valid_velocity) {
+            cloud_data_buff_.pop_front();
+            return false;
+        }
+        sensor_inited = true;
     }
 
     return true;
 }
 
 bool DataPretreatFlow::HasData(void) {
-    if ( cloud_data_buff_.empty() ) {
+    if ( cloud_data_buff_.empty() || velocity_data_buff_.empty() ) {
         return false;
     }
 
@@ -125,13 +176,33 @@ bool DataPretreatFlow::HasData(void) {
 
 bool DataPretreatFlow::ValidData() {
     current_cloud_data_ = cloud_data_buff_.front();
+    current_velocity_data_ = velocity_data_buff_.front();
+
+    double diff_velocity_time = current_cloud_data_.time - current_velocity_data_.time;
+    if (diff_velocity_time < -0.05) {
+        cloud_data_buff_.pop_front();
+        return false;
+    }
+
+    if (diff_velocity_time > 0.05) {
+        velocity_data_buff_.pop_front();
+        return false;
+    }
 
     cloud_data_buff_.pop_front();
+    velocity_data_buff_.pop_front();
 
     return true;
 }
 
 bool DataPretreatFlow::UpdateData(void) {
+    // first apply motion compensation:
+    current_velocity_data_.TransformCoordinate(lidar_to_imu_);
+
+    motion_compensator_ptr_->SetMotionInfo(0.1, current_velocity_data_);
+    // motion_compensator_ptr_->AdjustCloud(current_cloud_data_.cloud_ptr, current_cloud_data_.cloud_ptr);
+
+    // extract scan lines:
     data_pretreat_ptr_->Update(
         current_cloud_data_, 
         filtered_cloud_data_,

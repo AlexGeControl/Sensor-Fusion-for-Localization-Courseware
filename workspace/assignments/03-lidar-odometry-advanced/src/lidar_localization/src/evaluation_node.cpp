@@ -26,14 +26,10 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<EvaluationFlow> evaluation_flow_ptr = std::make_shared<EvaluationFlow>(nh);
 
     // process rate: 10Hz
-    ros::Rate rate(10);
-
     while (ros::ok()) {
         ros::spinOnce();
 
         evaluation_flow_ptr->Run();
-
-        rate.sleep();
     }
 
     return EXIT_SUCCESS;

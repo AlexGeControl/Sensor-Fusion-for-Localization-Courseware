@@ -27,14 +27,10 @@ int main(int argc, char *argv[]) {
     std::unique_ptr<ScanScanRegistrationFlow> scan_scan_registration_ptr = std::make_unique<ScanScanRegistrationFlow>(nh);
 
     // process rate: 10Hz
-    ros::Rate rate(10);
-
     while (ros::ok()) {
         ros::spinOnce();
 
         scan_scan_registration_ptr->Run();
-
-        rate.sleep();
     }
 
     return EXIT_SUCCESS;

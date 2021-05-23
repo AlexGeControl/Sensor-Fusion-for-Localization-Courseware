@@ -105,10 +105,7 @@ bool ScanScanRegistrationFlow::Run(void) {
         return false;
     }
 
-    while( HasData() ) {
-        // fetch registered scans:
-        ValidData();
-
+    while( HasData() && ValidData() ) {
         // update scan-to-scan odometry:
         UpdateData();
 

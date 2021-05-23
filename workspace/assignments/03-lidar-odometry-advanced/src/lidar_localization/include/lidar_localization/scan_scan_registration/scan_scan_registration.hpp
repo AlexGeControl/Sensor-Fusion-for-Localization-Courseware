@@ -121,12 +121,12 @@ class ScanScanRegistration {
     bool inited_{false};
 
     // relative pose:
-    Eigen::Quaternionf dq_;
-    Eigen::Vector3f dt_;
+    Eigen::Quaterniond dq_ = Eigen::Quaterniond::Identity();
+    Eigen::Vector3d dt_ = Eigen::Vector3d::Zero();
 
     // odometry:
-    Eigen::Quaternionf q_;
-    Eigen::Vector3f t_;
+    Eigen::Quaterniond q_ = Eigen::Quaterniond::Identity();
+    Eigen::Vector3d t_ = Eigen::Vector3d::Zero();
 };
 
 } // namespace lidar_localization

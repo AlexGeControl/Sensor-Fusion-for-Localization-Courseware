@@ -49,7 +49,7 @@ public:
         }
     };
 
-    CeresALOAMRegistration(const Config& config, const Eigen::Quaternionf &dq, const Eigen::Vector3f &dt);
+    CeresALOAMRegistration(const Config& config, const Eigen::Quaterniond &dq, const Eigen::Vector3d &dt);
     ~CeresALOAMRegistration();
 
     /**
@@ -100,7 +100,7 @@ public:
      * @brief  get optimized relative pose
      * @return true if success false otherwise
      */
-    bool GetOptimizedRelativePose(Eigen::Quaternionf &dq, Eigen::Vector3f &dt);
+    bool GetOptimizedRelativePose(Eigen::Quaterniond &dq, Eigen::Vector3d &dt);
 
 private:
     // optimizer config:

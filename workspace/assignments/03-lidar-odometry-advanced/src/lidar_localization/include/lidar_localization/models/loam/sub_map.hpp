@@ -10,6 +10,7 @@
 #include <memory>
 
 #include <vector>
+#include <set>
 
 #include <Eigen/Eigen>
 #include <Eigen/Core>
@@ -98,20 +99,19 @@ public:
     };
 
     LocalMap GetLocalMap(
-        const Eigen::Vector3f &query_position
+        const Eigen::Vector3d &query_position
     );
 
     bool RegisterLineFeaturePoints(
         const CloudData::CLOUD_PTR points, 
-        const Eigen::Quaternionf& q, const Eigen::Vector3f& t
+        const Eigen::Quaterniond& q, const Eigen::Vector3d& t
     );
     bool RegisterPlaneFeaturePoints(
         const CloudData::CLOUD_PTR points, 
-        const Eigen::Quaternionf& q, const Eigen::Vector3f& t
+        const Eigen::Quaterniond& q, const Eigen::Vector3d& t
     );
 
-    bool DownsampleLocalMap(
-        const Index &index,
+    bool DownsampleSubMap(
         std::unique_ptr<CloudFilterInterface>& sharp_filter_ptr,
         std::unique_ptr<CloudFilterInterface>& flat_filter_ptr
     );
@@ -126,9 +126,14 @@ private:
         std::vector<CloudData::CLOUD_PTR> flat;
     } tiles_;
 
+    struct {
+        std::set<size_t> sharp;
+        std::set<size_t> flat;
+    } recently_accessed_;
+
     ///@brief odometry frame position to tile index (x, y, z)
     bool IsValidIndex(const Index& index);
-    Index GetTileIndex(const Eigen::Vector3f &t);
+    Index GetTileIndex(const Eigen::Vector3d &t);
     Index GetTileIndex(const CloudData::POINT &point);
 
     ///@brief tile index (x, y, z) to access id
@@ -154,13 +159,14 @@ private:
 
     bool ProjectToMapFrame(
         const CloudData::POINT &input,
-        const Eigen::Quaternionf& q, const Eigen::Vector3f& t,
+        const Eigen::Quaterniond& q, const Eigen::Vector3d& t,
         CloudData::POINT &output
     );
     bool RegisterFeaturePoints(
         const CloudData::CLOUD_PTR points, 
-        const Eigen::Quaternionf& q, const Eigen::Vector3f& t,
-        std::vector<CloudData::CLOUD_PTR> &tiles
+        const Eigen::Quaterniond& q, const Eigen::Vector3d& t,
+        std::vector<CloudData::CLOUD_PTR> &tiles,
+        std::set<size_t>& recently_accessed
     );
 };
 

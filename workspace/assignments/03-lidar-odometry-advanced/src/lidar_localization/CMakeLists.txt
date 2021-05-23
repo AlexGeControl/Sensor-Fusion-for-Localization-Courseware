@@ -70,6 +70,10 @@ add_executable(aloam_data_pretreat_node src/aloam_data_pretreat_node.cpp ${ALL_S
 add_dependencies(aloam_data_pretreat_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(aloam_data_pretreat_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
+add_executable(aloam_scan_scan_registration_node src/aloam_scan_scan_registration_node.cpp ${ALL_SRCS})
+add_dependencies(aloam_scan_scan_registration_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(aloam_scan_scan_registration_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
+
 add_executable(aloam_scan_map_registration_node src/aloam_scan_map_registration_node.cpp ${ALL_SRCS})
 add_dependencies(aloam_scan_map_registration_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(aloam_scan_map_registration_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
@@ -100,6 +104,7 @@ install(TARGETS
         scan_map_registration_node
 
         aloam_data_pretreat_node
+        aloam_scan_scan_registration_node
         aloam_scan_map_registration_node
         
         evaluation_node

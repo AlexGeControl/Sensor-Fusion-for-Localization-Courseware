@@ -12,7 +12,12 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include "lidar_localization/subscriber/tf_listener.hpp"
+#include "lidar_localization/subscriber/velocity_subscriber.hpp"
 #include "lidar_localization/subscriber/cloud_subscriber.hpp"
+
+#include "lidar_localization/models/scan_adjust/distortion_adjust.hpp"
+
 #include "lidar_localization/publisher/cloud_publisher.hpp"
 
 #include "lidar_localization/data_pretreat/data_pretreat.hpp"
@@ -27,8 +32,10 @@ class DataPretreatFlow {
 
   private:
     bool InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node);
+    bool InitMotionCompensator(void);
     bool InitPublishers(ros::NodeHandle& nh, const YAML::Node& config_node);
 
+    bool InitCalibration(void);
     bool ReadData(void);
     bool HasData(void);
     bool ValidData(void);
@@ -37,9 +44,19 @@ class DataPretreatFlow {
     
   private:
     // input: velodyne measurements
+    std::unique_ptr<VelocitySubscriber> velocity_sub_ptr_{nullptr};
+    std::deque<VelocityData> velocity_data_buff_;
+    VelocityData current_velocity_data_;
+
+    std::unique_ptr<TFListener> lidar_to_imu_ptr_{nullptr};
+    Eigen::Matrix4f lidar_to_imu_ = Eigen::Matrix4f::Identity();
+
     std::unique_ptr<CloudSubscriber> cloud_sub_ptr_{nullptr};
     std::deque<CloudData> cloud_data_buff_;
     CloudData current_cloud_data_;
+
+    // motion compensator:
+    std::unique_ptr<DistortionAdjust> motion_compensator_ptr_;
 
     // scan registration implementation:
     std::unique_ptr<DataPretreat> data_pretreat_ptr_{nullptr};

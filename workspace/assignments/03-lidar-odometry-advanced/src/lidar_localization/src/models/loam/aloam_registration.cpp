@@ -16,7 +16,7 @@ namespace lidar_localization {
 
 CeresALOAMRegistration::CeresALOAMRegistration(
     const CeresALOAMRegistration::Config& config, 
-    const Eigen::Quaternionf &dq, const Eigen::Vector3f &dt
+    const Eigen::Quaterniond &dq, const Eigen::Vector3d &dt
 ) {   
     //
     // config optimizer:
@@ -150,21 +150,16 @@ bool CeresALOAMRegistration::Optimize() {
   * @brief  get optimized relative pose
   * @return true if success false otherwise
   */
-bool CeresALOAMRegistration::GetOptimizedRelativePose(Eigen::Quaternionf &dq, Eigen::Vector3f &dt) {
-    Eigen::Quaternionf q(
-        // w:
-        param_.q[3], 
-        // x:
-        param_.q[0], 
-        // y:
-        param_.q[1], 
-        // z:
-        param_.q[2]
-    );
-    Eigen::Vector3f t(param_.t[0], param_.t[1], param_.t[2]);
+bool CeresALOAMRegistration::GetOptimizedRelativePose(Eigen::Quaterniond &dq, Eigen::Vector3d &dt) {
+    dq.x() = param_.q[0];
+    dq.y() = param_.q[1];
+    dq.z() = param_.q[2];
+    dq.w() = param_.q[3];
+    dq.normalize();
 
-    dq = q;
-    dt = t;
+    dt.x() = param_.t[0];
+    dt.y() = param_.t[1];
+    dt.z() = param_.t[2];
 
     return true;
 }

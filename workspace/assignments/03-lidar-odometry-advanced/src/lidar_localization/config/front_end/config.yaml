@@ -75,7 +75,7 @@ scan_scan_registration:
         # lidar scan neighborhood thresh:
         scan_thresh: 2.50
         # mapping point cloud publish freq:
-        num_frames_skip: 1
+        num_frames_skip: 3
 scan_map_registration:
     publisher:
         odometry:

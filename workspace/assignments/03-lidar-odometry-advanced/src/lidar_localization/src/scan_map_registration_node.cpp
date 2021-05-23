@@ -26,15 +26,11 @@ int main(int argc, char *argv[]) {
     // register back end processing workflow:
     std::unique_ptr<ScanMapRegistrationFlow> scan_map_registration_flow_ptr = std::make_unique<ScanMapRegistrationFlow>(nh);
 
-    // process rate: 10Hz
-    ros::Rate rate(10);
-
+    // process rate: 3Hz
     while (ros::ok()) {
         ros::spinOnce();
 
         scan_map_registration_flow_ptr->Run();
-
-        rate.sleep();
     }
 
     return EXIT_SUCCESS;
