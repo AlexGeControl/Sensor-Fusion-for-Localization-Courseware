@@ -83,7 +83,7 @@ public:
         int y;
         int z;
 
-        Index(void) : x{0}, y{0}, z{0} {}
+        Index(void) : x{-1}, y{-1}, z{-1} {}
         
         Index(int x, int y, int z) {
             this->x = x;
@@ -158,10 +158,11 @@ private:
     );
 
     bool ProjectToMapFrame(
-        const CloudData::POINT &input,
         const Eigen::Quaterniond& q, const Eigen::Vector3d& t,
-        CloudData::POINT &output
+        const CloudData::CLOUD_PTR& source,
+        CloudData::CLOUD_PTR& target
     );
+
     bool RegisterFeaturePoints(
         const CloudData::CLOUD_PTR points, 
         const Eigen::Quaterniond& q, const Eigen::Vector3d& t,
@@ -169,6 +170,10 @@ private:
         std::set<size_t>& recently_accessed
     );
 };
+
+inline bool operator==(const SubMap::Index& lhs, const SubMap::Index& rhs) {
+    return (lhs.x == rhs.x) && (lhs.y == rhs.y) && (lhs.z == rhs.z);
+}
 
 } // namespace aloam
 

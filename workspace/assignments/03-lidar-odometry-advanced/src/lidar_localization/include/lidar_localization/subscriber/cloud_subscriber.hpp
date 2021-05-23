@@ -8,8 +8,9 @@
 #define LIDAR_LOCALIZATION_SUBSCRIBER_CLOUD_SUBSCRIBER_HPP_
 
 #include <deque>
-
+#include <mutex>
 #include <ros/ros.h>
+
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
@@ -30,8 +31,9 @@ class CloudSubscriber {
   private:
     ros::NodeHandle nh_;
     ros::Subscriber subscriber_;
-
     std::deque<CloudData> new_cloud_data_;
+
+    std::mutex buff_mutex_;
 };
 }
 

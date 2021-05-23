@@ -13,7 +13,7 @@
 namespace lidar_localization {
 
 EvaluationFlow::EvaluationFlow(ros::NodeHandle& nh) {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/config.yaml";
+    std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/loam.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
     InitSubscribers(nh, config_node["evaluation"]["subscriber"]);

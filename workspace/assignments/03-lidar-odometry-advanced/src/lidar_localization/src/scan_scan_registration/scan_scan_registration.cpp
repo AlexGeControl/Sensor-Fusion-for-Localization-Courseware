@@ -20,7 +20,7 @@
 namespace lidar_localization {
 
 ScanScanRegistration::ScanScanRegistration(void) {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/config.yaml";
+    std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/loam.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
     // set LOAM front end params:
@@ -37,14 +37,18 @@ ScanScanRegistration::ScanScanRegistration(void) {
 }
 
 bool ScanScanRegistration::InitParam(const YAML::Node& config_node) {
-    config_.scan_period = 0.10f;
-    config_.max_num_iteration = config_node["max_num_iteration"].as<int>();
-    config_.distance_thresh = config_node["distance_thresh"].as<float>();
-    config_.scan_thresh = config_node["scan_thresh"].as<float>();
+    config_.scan_period = 0.10;
+    
+    config_.distance_thresh = config_node["distance_thresh"].as<double>();
+    config_.scan_thresh = config_node["scan_thresh"].as<double>();
 
-    config_.registration_config.set_num_threads(1)
-                               .set_max_num_iterations(5)
-                               .set_max_solver_time_in_seconds(0.05);
+    config_.num_threads = config_node["num_threads"].as<int>();
+    config_.max_num_iteration = config_node["max_num_iteration"].as<int>();
+    config_.max_solver_time = config_node["max_solver_time"].as<double>();
+
+    config_.registration_config.set_num_threads(config_.num_threads)
+                               .set_max_num_iterations(config_.max_num_iteration)
+                               .set_max_solver_time_in_seconds(config_.max_solver_time);
     return true;
 }
 
@@ -57,8 +61,9 @@ bool ScanScanRegistration::InitKdTrees(void) {
 
 bool ScanScanRegistration::TransformToStart(const CloudData::POINT &input, CloudData::POINT &output) {
     // interpolation ratio
-    float ratio = (input.intensity - int(input.intensity)) / config_.scan_period;
-
+    // double ratio = (input.intensity - int(input.intensity)) / config_.scan_period;
+    double ratio = 1.0;
+    
     Eigen::Quaterniond dq = Eigen::Quaterniond::Identity().slerp(ratio, dq_);
     Eigen::Vector3d dt = ratio * dt_;
     Eigen::Vector3d p(input.x, input.y, input.z);
@@ -320,7 +325,7 @@ int ScanScanRegistration::AddEdgeFactors(
         aloam_registration.AddEdgeFactor(
             source,
             target_x, target_y,
-            corner_point_association.ratio
+            1.0 // corner_point_association.ratio
         );
 
         ++num_factors;
@@ -364,7 +369,7 @@ int ScanScanRegistration::AddPlaneFactors(
         aloam_registration.AddPlaneFactor(
             source,
             target_x, target_y, target_z,
-            surface_point_association.ratio
+            1.0 // surface_point_association.ratio
         );
 
         ++num_factors;
@@ -374,15 +379,13 @@ int ScanScanRegistration::AddPlaneFactors(
 }
 
 bool ScanScanRegistration::SetTargetPoints(
-    const CloudData::CLOUD &corner_less_sharp,
-    const CloudData::CLOUD &surf_less_flat
+    const CloudData::CLOUD_PTR &corner_less_sharp_ptr,
+    const CloudData::CLOUD_PTR &surf_less_flat_ptr
 ) {
-    kdtree_.candidate_corner_ptr.reset(new CloudData::CLOUD());
-    pcl::copyPointCloud(corner_less_sharp, *kdtree_.candidate_corner_ptr);
+    kdtree_.candidate_corner_ptr = corner_less_sharp_ptr;
     kdtree_.corner->setInputCloud(kdtree_.candidate_corner_ptr);
 
-    kdtree_.candidate_surface_ptr.reset(new CloudData::CLOUD());
-    pcl::copyPointCloud(surf_less_flat, *kdtree_.candidate_surface_ptr);
+    kdtree_.candidate_surface_ptr = surf_less_flat_ptr;
     kdtree_.surface->setInputCloud(kdtree_.candidate_surface_ptr);
     
     if ( !inited_ ) {
@@ -393,8 +396,8 @@ bool ScanScanRegistration::SetTargetPoints(
 }
 
 bool ScanScanRegistration::UpdateOdometry(Eigen::Matrix4f& lidar_odometry) {
-    q_ = q_ * dq_;
     t_ = q_ * dt_ + t_;
+    q_ = q_ * dq_;
 
     lidar_odometry.block<3, 3>(0, 0) = q_.toRotationMatrix().cast<float>();
     lidar_odometry.block<3, 1>(0, 3) = t_.cast<float>();
@@ -409,6 +412,8 @@ bool ScanScanRegistration::Update(
     CloudData::CLOUD_PTR surf_less_flat,
     Eigen::Matrix4f& lidar_odometry
 ) {
+    static int count{0};
+
     // feature point association:
     if ( inited_ ) {
         // iterative optimization:
@@ -432,8 +437,6 @@ bool ScanScanRegistration::Update(
             // get relative pose:
             aloam_registration.Optimize();
             aloam_registration.GetOptimizedRelativePose(dq_, dt_);
-
-            // LOG(WARNING) << "\tIter. " << i + 1 << ": num edges " << num_edge_factors << ", num planes " << num_plane_factors << std::endl;
         }
 
         // update odometry:
@@ -441,7 +444,7 @@ bool ScanScanRegistration::Update(
     }
 
     // set target feature points for next association:
-    SetTargetPoints(*corner_less_sharp, *surf_less_flat);
+    SetTargetPoints(corner_less_sharp, surf_less_flat);
 
     return true;
 }

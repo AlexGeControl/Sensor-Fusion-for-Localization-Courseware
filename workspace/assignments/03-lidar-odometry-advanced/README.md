@@ -35,7 +35,10 @@ catkin config --install && catkin build
 # set up session:
 source install/setup.bash
 # launch:
-roslaunch lidar_localization front_end.launch
+# option 1: aloam, migration through topic adaptation:
+roslaunch lidar_localization aloam.launch
+# option 2: aloam, in-depth adaptation for course assignment framework:
+roslaunch lidar_localization loam.launch
 ```
 
 在**下侧**的Shell中, 输入如下命令, **Play KITTI ROS Bag**. 两个数据集均可用于完成课程, 对代码功能的运行没有任何影响, 区别在于第一个有Camera信息
@@ -49,12 +52,18 @@ rosbag play kitti_lidar_only_2011_10_03_drive_0027_synced.bag
 
 成功后, 可以看到如下的RViz界面:
 
-<img src="doc/demo.png" alt="ALOAM Frontend Demo" width="100%">
+<img src="doc/demo-aloam.png" alt="ALOAM Frontend Demo" width="100%">
 
-本次作业的代码框架基于秦通大佬的[ALOAM](https://github.com/HKUST-Aerial-Robotics/A-LOAM)改造:
+<img src="doc/demo-loam.png" alt="ALOAM, In-Depth Adaptation, Frontend Demo" width="100%">
 
-* 仅保留了**点云预处理**与**前端**两部分
-* 在此基础上实现了与任佬框架的暴力集成, 上述功能并没有完全适配任佬框架的编码实践, 欢迎有追求的你在此基础上进行改造.
+本次作业的代码框架基于秦通大佬的[ALOAM](https://github.com/HKUST-Aerial-Robotics/A-LOAM)改造. 提供如下的两个版本:
+
+* Option 1: 针对深蓝学院教学框架深度适配版, loam.launch
+    * 仅保留了**点云预处理**与**前端**两部分.
+    * 将ALOAM全部节点按照教学框架设计理念进行重构.
+
+* Option 2: 简易适配版, aloam.launch
+    * 仅将Topic Name与课程数据集适配.
 
 请你在此基础上实现**新模型的解析求导**. 请在提交的报告中, 清晰明了地分析你的实现, 将代码实现与你的公式推导相对应. **仅仅跑通框架, 不会得到此题目的分数**
 

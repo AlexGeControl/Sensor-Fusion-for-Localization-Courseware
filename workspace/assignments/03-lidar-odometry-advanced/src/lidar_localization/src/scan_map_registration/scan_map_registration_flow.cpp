@@ -13,7 +13,7 @@
 namespace lidar_localization {
 
 ScanMapRegistrationFlow::ScanMapRegistrationFlow(ros::NodeHandle& nh) {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/config.yaml";
+    std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/loam.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
     // init params:
@@ -120,22 +120,34 @@ bool ScanMapRegistrationFlow::HasData(void) {
 }
 
 bool ScanMapRegistrationFlow::ValidData() {
-    mapping_sharp_points_ = mapping_sharp_points_buff_.front();
-    mapping_flat_points_ = mapping_flat_points_buff_.front();
+    const auto& odom_scan_to_scan_time = odom_scan_to_scan_buff_.front().time;
 
-    odom_scan_to_scan_ = odom_scan_to_scan_buff_.front();
+    const auto& mapping_sharp_points_time = mapping_sharp_points_buff_.front().time;
+    const auto& mapping_flat_points_time = mapping_flat_points_buff_.front().time;
 
-    double d_time = odom_scan_to_scan_.time - mapping_sharp_points_.time;
-    if (d_time < 0.0) {
+    if (
+        (odom_scan_to_scan_time < mapping_sharp_points_time) ||
+        (odom_scan_to_scan_time < mapping_flat_points_time)
+    ) {
         odom_scan_to_scan_buff_.pop_front();
-        return false;
     }
 
-    mapping_sharp_points_buff_.pop_front();
-    mapping_flat_points_buff_.pop_front();
-    odom_scan_to_scan_buff_.pop_front();
+    if (
+        (odom_scan_to_scan_time == mapping_sharp_points_time) &&
+        (odom_scan_to_scan_time == mapping_flat_points_time)
+    ) {
+        odom_scan_to_scan_ = std::move(odom_scan_to_scan_buff_.front());
+        mapping_sharp_points_ = std::move(mapping_sharp_points_buff_.front());
+        mapping_flat_points_ = std::move(mapping_flat_points_buff_.front());
 
-    return true;
+        odom_scan_to_scan_buff_.pop_front();
+        mapping_sharp_points_buff_.pop_front();
+        mapping_flat_points_buff_.pop_front();
+
+        return true;
+    }
+
+    return false;
 }
 
 bool ScanMapRegistrationFlow::UpdateData(void) {

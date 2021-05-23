@@ -15,10 +15,10 @@
     <node pkg="lidar_localization" type="aloam_data_pretreat_node" name="aloam_data_pretreat_node" output="screen"/>
     
     <!-- scan-scan registration -->
-    <node pkg="lidar_localization" type="scan_scan_registration_node" name="scan_scan_registration_node" output="screen" />
+    <node pkg="lidar_localization" type="aloam_scan_scan_registration_node" name="aloam_scan_scan_registration_node" output="screen" />
      
     <!-- scan-map registration -->
-    <node pkg="lidar_localization" type="scan_map_registration_node" name="scan_map_registration_node" output="screen" />
+    <node pkg="lidar_localization" type="aloam_scan_map_registration_node" name="aloam_scan_map_registration_node" output="screen" />
     
     <!-- for evo evaluation -->
     <node pkg="lidar_localization" type="evaluation_node" name="evaluation_node" output="screen" />

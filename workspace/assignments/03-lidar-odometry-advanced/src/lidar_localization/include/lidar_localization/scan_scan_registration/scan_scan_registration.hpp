@@ -93,18 +93,22 @@ class ScanScanRegistration {
     );
 
     bool SetTargetPoints(
-      const CloudData::CLOUD &corner_less_sharp,
-      const CloudData::CLOUD &surf_less_flat
+      const CloudData::CLOUD_PTR &corner_less_sharp,
+      const CloudData::CLOUD_PTR &surf_less_flat
     );
 
     bool UpdateOdometry(Eigen::Matrix4f& lidar_odometry);
 
   private:
     struct {
-      float scan_period;
-      int max_num_iteration;
-      float distance_thresh;
-      float scan_thresh;
+      double scan_period{0.10};
+      
+      double distance_thresh{25.0};
+      double scan_thresh{2.50};
+
+      int num_threads{4};
+      int max_num_iteration{4};
+      double max_solver_time{0.05};
       CeresALOAMRegistration::Config registration_config;
     } config_;
 

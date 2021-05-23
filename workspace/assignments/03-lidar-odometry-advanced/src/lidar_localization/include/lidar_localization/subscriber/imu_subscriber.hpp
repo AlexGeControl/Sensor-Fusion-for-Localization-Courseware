@@ -7,6 +7,7 @@
 #define LIDAR_LOCALIZATION_SUBSCRIBER_IMU_SUBSCRIBER_HPP_
 
 #include <deque>
+#include <mutex>
 #include <ros/ros.h>
 #include "sensor_msgs/Imu.h"
 #include "lidar_localization/sensor_data/imu_data.hpp"
@@ -24,8 +25,9 @@ class IMUSubscriber {
   private:
     ros::NodeHandle nh_;
     ros::Subscriber subscriber_;
-
     std::deque<IMUData> new_imu_data_; 
+
+    std::mutex buff_mutex_; 
 };
 }
 #endif

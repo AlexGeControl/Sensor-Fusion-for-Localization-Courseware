@@ -13,7 +13,7 @@
 namespace lidar_localization {
 
 ScanScanRegistrationFlow::ScanScanRegistrationFlow(ros::NodeHandle& nh) {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/config.yaml";
+    std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/loam.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
     // init params:
@@ -141,35 +141,35 @@ bool ScanScanRegistrationFlow::HasData(void) {
 }
 
 bool ScanScanRegistrationFlow::ValidData() {
-    filtered_cloud_ = filtered_cloud_buff_.front();
+    const auto& filtered_cloud_time = filtered_cloud_buff_.front().time;
 
-    corner_points_sharp_ = corner_points_sharp_buff_.front();
-    corner_points_less_sharp_ = corner_points_less_sharp_buff_.front();
-    surf_points_flat_ = surf_points_flat_buff_.front();
-    surf_points_less_flat_ = surf_points_less_flat_buff_.front();
+    const auto& corner_points_sharp_time = corner_points_sharp_buff_.front().time;
+    const auto& corner_points_less_sharp_time = corner_points_less_sharp_buff_.front().time;
+    const auto& surf_points_flat_time = surf_points_flat_buff_.front().time;
+    const auto& surf_points_less_flat_time = surf_points_less_flat_buff_.front().time;
 
-    double d_time = filtered_cloud_.time - corner_points_sharp_.time;
-    if (d_time < -0.05) {
+    if (
+        (filtered_cloud_time == corner_points_sharp_time) &&
+        (filtered_cloud_time == corner_points_less_sharp_time) && 
+        (filtered_cloud_time == surf_points_flat_time) &&
+        (filtered_cloud_time == surf_points_less_flat_time)
+    ) {
+        filtered_cloud_ = std::move(filtered_cloud_buff_.front());
+        corner_points_sharp_ = std::move(corner_points_sharp_buff_.front());
+        corner_points_less_sharp_ = std::move(corner_points_less_sharp_buff_.front());
+        surf_points_flat_ = std::move(surf_points_flat_buff_.front());
+        surf_points_less_flat_ = std::move(surf_points_less_flat_buff_.front());
+
         filtered_cloud_buff_.pop_front();
-        return false;
-    }
-
-    if (d_time > 0.05) {
         corner_points_sharp_buff_.pop_front();
         corner_points_less_sharp_buff_.pop_front();
         surf_points_flat_buff_.pop_front();
         surf_points_less_flat_buff_.pop_front();
-        return false;
+
+        return true;
     }
 
-    filtered_cloud_buff_.pop_front();
-
-    corner_points_sharp_buff_.pop_front();
-    corner_points_less_sharp_buff_.pop_front();
-    surf_points_flat_buff_.pop_front();
-    surf_points_less_flat_buff_.pop_front();
-
-    return true;
+    return false;
 }
 
 bool ScanScanRegistrationFlow::UpdateData(void) {

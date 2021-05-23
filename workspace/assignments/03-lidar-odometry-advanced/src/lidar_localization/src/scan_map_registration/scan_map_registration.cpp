@@ -18,11 +18,12 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/common/io.h>
+#include <pcl/common/transforms.h>
 
 namespace lidar_localization {
 
 ScanMapRegistration::ScanMapRegistration(void) {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/config.yaml";
+    std::string config_file_path = WORK_SPACE_PATH + "/config/front_end/loam.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
     // init matching config:
@@ -51,12 +52,10 @@ bool ScanMapRegistration::Update(
     // predict scan-map odometry:
     PredictScanMapOdometry(odom_scan_to_scan);
     
-    auto timestamp_local_map = std::chrono::steady_clock::now();
     // get local map:
     auto local_map = submap_ptr_->GetLocalMap(pose_.scan_map_odometry.t);
 
     // if sufficient feature points for matching have been found:
-    auto timestamp_estimation = std::chrono::steady_clock::now();
     if ( HasSufficientFeaturePoints(local_map) ) {
         // set targets:
         SetTargetPoints(local_map);
@@ -69,14 +68,12 @@ bool ScanMapRegistration::Update(
                 config_.registration_config,
                 pose_.scan_map_odometry.q, pose_.scan_map_odometry.t
             );
-            const auto num_edge_factors = AddEdgeFactors(filtered_sharp_points, local_map.sharp, aloam_registration);
-            const auto num_plane_factors = AddPlaneFactors(filtered_flat_points, local_map.flat, aloam_registration);
+            AddEdgeFactors(filtered_sharp_points, local_map.sharp, aloam_registration);
+            AddPlaneFactors(filtered_flat_points, local_map.flat, aloam_registration);
 
             // get relative pose:
             aloam_registration.Optimize();
             aloam_registration.GetOptimizedRelativePose(pose_.scan_map_odometry.q, pose_.scan_map_odometry.t);
-
-            // LOG(WARNING) << "\tIter. " << i + 1 << ": num edges " << num_edge_factors << ", num planes " << num_plane_factors << std::endl;
         }
     }
 
@@ -84,32 +81,18 @@ bool ScanMapRegistration::Update(
     UpdateRelativePose();
 
     // register feature points:
-    auto timestamp_registration = std::chrono::steady_clock::now();
     submap_ptr_->RegisterLineFeaturePoints(filtered_sharp_points, pose_.scan_map_odometry.q, pose_.scan_map_odometry.t);
     submap_ptr_->RegisterPlaneFeaturePoints(filtered_flat_points, pose_.scan_map_odometry.q, pose_.scan_map_odometry.t);
 
     // downsample local map:
-    auto timestamp_downsample = std::chrono::steady_clock::now();
     static int dowmsample_count{0};
-    if (0 == ++dowmsample_count % 5) {
+    if (0 == ++dowmsample_count % 1) {
         submap_ptr_->DownsampleSubMap(
             filter_.sharp_filter_ptr_, filter_.flat_filter_ptr_
         );
 
         dowmsample_count = 0;
     }
-
-    auto timestamp_done = std::chrono::steady_clock::now();
-
-    std::chrono::duration<double> duration_local_map = timestamp_estimation - timestamp_local_map;
-    std::chrono::duration<double> duration_estimation = timestamp_registration - timestamp_estimation;
-    std::chrono::duration<double> duration_registration = timestamp_downsample - timestamp_registration;
-    std::chrono::duration<double> duration_downsample = timestamp_done - timestamp_downsample;
-
-    LOG(WARNING) << "\t Local Map Extraction: " << duration_local_map.count() << std::endl;
-    LOG(WARNING) << "\t Relative Pose Estimation: " << duration_estimation.count() << std::endl;
-    LOG(WARNING) << "\t Measurement Registration: " << duration_registration.count() << std::endl;
-    LOG(WARNING) << "\t Sub Map Downsampling: " << duration_downsample.count() << std::endl;
 
     // update odometry:
     UpdateOdometry(lidar_odometry);
@@ -120,12 +103,16 @@ bool ScanMapRegistration::Update(
 bool ScanMapRegistration::InitParams(const YAML::Node& config_node) {
     config_.min_num_sharp_points = config_node["min_num_sharp_points"].as<int>();
     config_.min_num_flat_points = config_node["min_num_flat_points"].as<int>();
-    config_.max_num_iteration = config_node["max_num_iteration"].as<int>();
+    
     config_.distance_thresh = config_node["distance_thresh"].as<double>();
 
-    config_.registration_config.set_num_threads(1)
-                               .set_max_num_iterations(25)
-                               .set_max_solver_time_in_seconds(0.15);
+    config_.num_threads = config_node["num_threads"].as<int>();
+    config_.max_num_iteration = config_node["max_num_iteration"].as<int>();
+    config_.max_solver_time = config_node["max_solver_time"].as<double>();
+
+    config_.registration_config.set_num_threads(config_.num_threads)
+                               .set_max_num_iterations(config_.max_num_iteration)
+                               .set_max_solver_time_in_seconds(config_.max_solver_time);
 
     return true;
 }
@@ -185,19 +172,15 @@ bool ScanMapRegistration::SetTargetPoints(
 }
 
 bool ScanMapRegistration::ProjectToMapFrame(
-    const CloudData::POINT &input,
-    CloudData::POINT &output
+    const CloudData::CLOUD_PTR& source,
+    CloudData::CLOUD_PTR& query
 ) {
-    Eigen::Vector3d x{
-        input.x, input.y, input.z
-    };
-    Eigen::Vector3d y = pose_.scan_map_odometry.q * x + pose_.scan_map_odometry.t;
+    Eigen::Matrix4f transform_matrix = Eigen::Matrix4f::Identity();
 
-    output.x = y.x();
-    output.y = y.y();
-    output.z = y.z();
-
-    output.intensity = input.intensity;
+    transform_matrix.block<3, 3>(0, 0) = pose_.scan_map_odometry.q.toRotationMatrix().cast<float>();
+    transform_matrix.block<3, 1>(0, 3) = pose_.scan_map_odometry.t.cast<float>();
+    
+    pcl::transformPointCloud(*source, *query, transform_matrix);
 
     return true;
 }
@@ -209,16 +192,16 @@ int ScanMapRegistration::AddEdgeFactors(
 ) {
     const auto num_feature_points = source->points.size();
 
+    CloudData::CLOUD_PTR query(new CloudData::CLOUD());
+    ProjectToMapFrame(source, query);
+
     std::vector<int> target_candidate_indices;
     std::vector<float> target_candidate_distances;
 
     int num_factors{0};
     for (size_t i = 0; i < num_feature_points; ++i) {
         const auto& feature_point_in_lidar_frame = source->points[i];
-
-        // project to map frame:
-        CloudData::POINT feature_point_in_map_frame;
-        ProjectToMapFrame(feature_point_in_lidar_frame, feature_point_in_map_frame);
+        const auto& feature_point_in_map_frame = query->points[i];
 
         // search in target:
         const int num_neighbors = 5;
@@ -287,16 +270,16 @@ int ScanMapRegistration::AddPlaneFactors(
 ) {
     const auto num_feature_points = source->points.size();
 
+    CloudData::CLOUD_PTR query(new CloudData::CLOUD());
+    ProjectToMapFrame(source, query);
+
     std::vector<int> target_candidate_indices;
     std::vector<float> target_candidate_distances;
 
     int num_factors{0};
     for (size_t i = 0; i < num_feature_points; ++i) { 
         const auto& feature_point_in_lidar_frame = source->points[i];
-
-        // project to map frame:
-        CloudData::POINT feature_point_in_map_frame;
-        ProjectToMapFrame(feature_point_in_lidar_frame, feature_point_in_map_frame);
+        const auto& feature_point_in_map_frame = query->points[i];
 
         // search in target:
         const int num_neighbors = 5;
@@ -347,9 +330,13 @@ int ScanMapRegistration::AddPlaneFactors(
 }
 
 bool ScanMapRegistration::PredictScanMapOdometry(const Eigen::Matrix4f& odom_scan_to_scan) {
-    // set scan-scan estimation:
-    pose_.scan_scan_odometry.q = odom_scan_to_scan.block<3, 3>(0, 0).cast<double>();
-    pose_.scan_scan_odometry.t = odom_scan_to_scan.block<3, 1>(0, 3).cast<double>();
+    // set scan-scan estimation, ALOAM original implementation:
+    // pose_.scan_scan_odometry.q = odom_scan_to_scan.block<3, 3>(0, 0).cast<double>();
+    // pose_.scan_scan_odometry.t = odom_scan_to_scan.block<3, 1>(0, 3).cast<double>();
+
+    // set scan-scan estimation, my own modification:
+    pose_.scan_scan_odometry.q = pose_.scan_map_odometry.q; 
+    pose_.scan_scan_odometry.t = pose_.scan_map_odometry.t; 
 
     // predict scan-map estimation:
     const auto& dq = pose_.relative.q;

@@ -6,6 +6,8 @@
 
 #include <chrono>
 
+#include <pcl/common/transforms.h>
+
 #include "glog/logging.h"
 
 #include "lidar_localization/models/loam/sub_map.hpp"
@@ -48,8 +50,11 @@ SubMap::LocalMap SubMap::GetLocalMap(
     // anchor sub map to query position:
     Reanchor(query_index);
 
+    // get local map:
+    const auto local_map = GetLocalMap(query_index);
+
     // get result:
-    return GetLocalMap(query_index);
+    return local_map;
 };
 
 bool SubMap::RegisterLineFeaturePoints(
@@ -371,19 +376,17 @@ SubMap::LocalMap SubMap::GetLocalMap(
 }
 
 bool SubMap::ProjectToMapFrame(
-    const CloudData::POINT &input,
     const Eigen::Quaterniond& q, const Eigen::Vector3d& t,
-    CloudData::POINT &output
+    const CloudData::CLOUD_PTR& source,
+    CloudData::CLOUD_PTR& target
 ) {
-    Eigen::Vector3d x{input.x, input.y, input.z};
-	Eigen::Vector3d y = q * x + t;
+    Eigen::Matrix4f transform_matrix = Eigen::Matrix4f::Identity();
 
-	output.x = y.x();
-	output.y = y.y();
-    output.z = y.z();
-
-	output.intensity = input.intensity;
+    transform_matrix.block<3, 3>(0, 0) = q.toRotationMatrix().cast<float>();
+    transform_matrix.block<3, 1>(0, 3) = t.cast<float>();
     
+    pcl::transformPointCloud(*source, *target, transform_matrix);
+
     return true;
 }
 
@@ -395,13 +398,12 @@ bool SubMap::RegisterFeaturePoints(
 ) {
     const auto num_feature_points = points->points.size();
 
+    CloudData::CLOUD_PTR target(new CloudData::CLOUD());
+    ProjectToMapFrame(q, t, points, target);
+
     for (size_t i = 0; i < num_feature_points; ++i)
     {   
-        const auto& feature_point_in_lidar_frame = points->points[i];
-        CloudData::POINT feature_point_in_map_frame;
-
-        // project lidar measurement to map frame:
-        ProjectToMapFrame(feature_point_in_lidar_frame, q, t, feature_point_in_map_frame);
+        const auto& feature_point_in_map_frame = target->points[i];
 
         // register to associated tile:
         const auto associated_tile_index = GetTileIndex(feature_point_in_map_frame);

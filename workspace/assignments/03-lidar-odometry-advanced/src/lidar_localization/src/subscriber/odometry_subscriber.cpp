@@ -15,6 +15,7 @@ OdometrySubscriber::OdometrySubscriber(ros::NodeHandle& nh, std::string topic_na
 
 void OdometrySubscriber::msg_callback(const nav_msgs::OdometryConstPtr& odom_msg_ptr) {
     buff_mutex_.lock();
+    
     PoseData pose_data;
     pose_data.time = odom_msg_ptr->header.stamp.toSec();
 
@@ -48,10 +49,17 @@ void OdometrySubscriber::msg_callback(const nav_msgs::OdometryConstPtr& odom_msg
 
 void OdometrySubscriber::ParseData(std::deque<PoseData>& pose_data_buff) {
     buff_mutex_.lock();
-    if (new_pose_data_.size() > 0) {
-        pose_data_buff.insert(pose_data_buff.end(), new_pose_data_.begin(), new_pose_data_.end());
+    
+    if (!new_pose_data_.empty()) {
+        std::copy(
+            std::make_move_iterator(new_pose_data_.begin()),
+            std::make_move_iterator(new_pose_data_.end()),
+            std::back_inserter(pose_data_buff)
+        );
+
         new_pose_data_.clear();
     }
+    
     buff_mutex_.unlock();
 }
 

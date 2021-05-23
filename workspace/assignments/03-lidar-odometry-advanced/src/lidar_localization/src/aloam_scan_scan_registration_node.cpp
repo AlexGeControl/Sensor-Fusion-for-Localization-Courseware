@@ -185,7 +185,9 @@ void laserCloudFullResHandler(const sensor_msgs::PointCloud2ConstPtr &laserCloud
 }
 
 int main(int argc, char **argv)
-{
+{   
+    static int count{0};
+
     ros::init(argc, argv, "laserOdometry");
     ros::NodeHandle nh;
 
@@ -483,8 +485,8 @@ int main(int argc, char **argv)
                         }
                     }
 
-                    //printf("coner_correspondance %d, plane_correspondence %d \n", corner_correspondence, plane_correspondence);
-                    printf("data association time %f ms \n", t_data.toc());
+                    // printf("coner_correspondance %d, plane_correspondence %d \n", corner_correspondence, plane_correspondence);
+                    // printf("data association time %f ms \n", t_data.toc());
 
                     if ((corner_correspondence + plane_correspondence) < 10)
                     {
@@ -498,9 +500,20 @@ int main(int argc, char **argv)
                     options.minimizer_progress_to_stdout = false;
                     ceres::Solver::Summary summary;
                     ceres::Solve(options, &problem, &summary);
-                    printf("solver time %f ms \n", t_solver.toc());
+                    // printf("solver time %f ms \n", t_solver.toc());
+
+                    std::cout << "\tInput. " << count << " : " << cornerPointsSharp->size() << " / "  << laserCloudCornerLast->size() << " / "  << surfPointsFlat->size() << " / "  << laserCloudSurfLast->size() << " / " << std::endl;
+                    std::cout << "\tEstimation. " << count << ": num edges " << corner_correspondence << ", num planes " << plane_correspondence << std::endl;
+                    std::cout << "\tResult: " << std::endl;
+                    std::cout << "\t\tdq: " << q_last_curr.x() << q_last_curr.y() << q_last_curr.z() << q_last_curr.w() << std::endl;
+                    std::cout << "\t\tdt: " << t_last_curr.x() << t_last_curr.y() << t_last_curr.z() << std::endl;
+                    std::cout << std::endl;
+
+                    if (1 == opti_counter) {
+                        ++count;
+                    }
                 }
-                printf("optimization twice time %f \n", t_opt.toc());
+                // printf("optimization twice time %f \n", t_opt.toc());
 
                 t_w_curr = t_w_curr + q_w_curr * t_last_curr;
                 q_w_curr = q_w_curr * q_last_curr;

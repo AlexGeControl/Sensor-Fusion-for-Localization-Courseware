@@ -45,7 +45,7 @@ class DataPretreatFlow {
   private:
     // input: velodyne measurements
     std::unique_ptr<VelocitySubscriber> velocity_sub_ptr_{nullptr};
-    std::deque<VelocityData> velocity_data_buff_;
+    std::deque<VelocityData> raw_velocity_data_buff_, synced_velocity_data_buff_;
     VelocityData current_velocity_data_;
 
     std::unique_ptr<TFListener> lidar_to_imu_ptr_{nullptr};

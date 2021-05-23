@@ -61,8 +61,12 @@ class ScanMapRegistration {
     struct {
       int min_num_sharp_points{10};
       int min_num_flat_points{50};
-      int max_num_iteration{5};
+
       double distance_thresh{1.0};
+
+      int num_threads{4};
+      int max_num_iteration{4};
+      double max_solver_time{0.05};
       CeresALOAMRegistration::Config registration_config;
     } config_;
 
@@ -104,8 +108,8 @@ class ScanMapRegistration {
     bool SetTargetPoints(aloam::SubMap::LocalMap& local_map);
 
     bool ProjectToMapFrame(
-      const CloudData::POINT &input,
-      CloudData::POINT &output
+      const CloudData::CLOUD_PTR& source,
+      CloudData::CLOUD_PTR& query
     );
     int AddEdgeFactors(
       const CloudData::CLOUD_PTR source,
