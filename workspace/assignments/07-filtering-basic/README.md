@@ -61,7 +61,7 @@ rosbag play kitti_lidar_only_2011_10_03_drive_0027_synced.bag
 
 此Demo为参考答案的演示效果. **在你完成作业之前, 你将不会看到如此稳定的蓝色轨迹, 若未实现ESKF, 蓝色轨迹会快速发散**. 你的任务是自行实现精度尽可能高的解算方法. 期待你的精彩发挥!
 
-请搜索TODO, 开始你的编码 :P. 此处将完成作业相关的配置汇总如下:
+请搜索TODO, 开始你的编码 :P. 此处将完成作业相关的配置汇总如下. 所有的改动仅需在如下三个文件中进行:
 
 * **Hyper Params** [here](src/lidar_localization/config/filtering/kitti_filtering.yaml#L109)
     
