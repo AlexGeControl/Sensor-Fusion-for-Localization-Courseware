@@ -633,7 +633,7 @@ bool ScanContextManager::UpdateIndex(const int MIN_KEY_FRAME_SEQ_DISTANCE) {
             state_.key_frame_.end() - MIN_KEY_FRAME_SEQ_DISTANCE
         );
 
-        // TODO: enable in-place update of KDTree
+        // enable in-place update of KDTree
         state_.index_.kd_tree_.reset(); 
         state_.index_.kd_tree_ = std::make_shared<RingKeyIndex>(
             NUM_RINGS_,  /* dim */

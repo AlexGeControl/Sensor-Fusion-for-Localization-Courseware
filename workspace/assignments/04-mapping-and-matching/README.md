@@ -10,6 +10,13 @@
 
 ---
 
+## 3rd Party Libraries
+
+* **g2o**, 20200410_git
+* **protobuf**, 3.14.x
+
+---
+
 ## Getting Started
 
 ### 及格要求: 跑通建图流程、保存地图，并截图显示完整地图
