@@ -38,6 +38,8 @@ docker pull registry.cn-shanghai.aliyuncs.com/shenlanxueyuan/sensor-fusion-works
 
 <img src="doc/terminator.png" alt="Terminator" width="100%">
 
+首先, 配置[Click Here](src/lidar_localization/config/front_end/config.yaml)Frontend所使用的算法. 其中2个来自PCL默认实现，另外2个为优秀要求待实现的算法. 应该用哪个，请你阅读框架后自行决定.
+
 在**上侧**的Shell中, 输入如下命令, **编译catkin_workspace**
 
 ```bash
@@ -63,7 +65,7 @@ rosbag play kitti_2011_10_03_drive_0027_synced.bag
 rosbag play kitti_lidar_only_2011_10_03_drive_0027_synced.bag
 ```
 
-成功后, 可以看到如下的RViz界面:
+如果选择的算法正确，成功编译运行后, 可以看到如下的RViz界面:
 
 <img src="doc/demo.png" alt="Frontend Demo" width="100%">
 
