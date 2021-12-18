@@ -6,7 +6,7 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 
 ---
 
-## 先修课程检查
+## 先修课程与准备知识检查
 
 我在学习这门课程时，已经完成如下深蓝学院课程的学习:
 
@@ -17,14 +17,28 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 
 且有多年的机器人系统开发经验, 熟悉以下的开发语言/框架/工具:
 
-* C/C++
+* **Modern C++ (11 and above)** [Reference Book](https://www.amazon.com/Effective-Modern-Specific-Ways-Improve/dp/1491903996/ref=sr_1_1?crid=3FBSOVE5S7DG2&keywords=effective+modern+c%2B%2B&qid=1639809190&sprefix=effective+modern+c%2B%2Caps%2C573&sr=8-1)
 * Python
-* ROS
-* Git/GitHub, Markdown与LaTex
+* **ROS**
+* **Git/GitHub, Markdown**与LaTex
 
 ---
 
-## Overview
+## Docker Env - Up & Running
+
+### WARNING - About Environment 
+
+**若您坚持在Native Ubuntu上进行开发**, 此处**将默认您有足够的定位&建图开发环境运维经验, 能够自定义开发环境, 并且自主解决由于环境依赖冲突导致的各种问题**. 课程的重点在多传感融合定位算法, 并非基于Docker的环境搭建. 如果感兴趣, 请根据以下提示, 自行学习.**本框架只确保Docker环境的开箱即用, 不提供任何本地环境配置冲突解决的帮助**.
+
+* 确保熟悉Docker与Docker-Compose的开发使用
+* 根据Dockerfile [Click Here](docker/cpu.Dockerfile)自行准备开发环境
+* 熟悉其中的各个依赖库, 有能力在出现依赖问题时, 自行搜索, 查询相关资料, 修复依赖冲突
+
+### WARNING - On This Guide
+
+**请您务必按照本指南, 一步一步操作, 当且仅当您在对本环境足够熟悉的情况下，再自由发挥**
+
+### Overview
 
 本Repo为基于**ROS melodic** @ **Ubuntu 18.04**的[多传感器融合定位与建图/Multi-Sensor Fusion for Localization & Mapping](https://www.shenlanxueyuan.com/course/324)学习环境. 
 
@@ -40,16 +54,6 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 
 ---
 
-# Note - Environment 
-
-**若您坚持在Native Ubuntu上进行开发**, 此处**将默认您有足够的定位&建图开发环境运维经验, 能够自定义开发环境, 并且自主解决由于环境依赖冲突导致的各种问题**. 请您
-
-* 确保熟悉Docker与Docker-Compose的开发使用
-* 根据Dockerfile[here](docker/cpu.Dockerfile)自行准备开发环境
-* 熟悉其中的各个依赖库, 有能力在出现依赖问题时, 自行搜索, 查询相关资料, 修复依赖冲突
-
----
-
 ### 安装Ubuntu
 
 首先请确保您可以访问**Ubuntu**开发环境. 如果没有**Ubuntu**环境, 请按照[点击链接进入](ubuntu-setup/README.md)指南, 在本地PC上安装配置**Ubuntu**环境.
@@ -58,7 +62,7 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 
 ### 获取Docker开发环境
 
-本课程推荐使用配套的Docker环境[点击链接进入](docker/README.md)完成课程学习. Docker提供了一个轻量级的标准化开发环境, 能够避免环境配置差异导致的诸多问题.
+本课程推荐使用配套的Docker环境[点击链接进入](docker/README.md)完成课程学习. Docker提供了一个轻量级的标准化开发环境, 能够避免本地已有环境的差异导致的奇怪问题, 避免环境配置调试的巨额时间浪费.
 
 ---
 
@@ -94,6 +98,65 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 
 * 在**Docker /workspace**下, 进行编译. 具体的编译方法, 请参考[作业1 环境搭建](workspace/assignments/01-introduction/README.md)
 
+---
+
+### Assignments
+
+#### Week 02, Lidar Odometry, Basic
+
+```bash
+git checkout 02-lidar-odometry-basic
+```
+
+#### Week 03, Lidar Odometry, Advanced
+
+```bash
+git checkout 03-lidar-odometry-advanced
+```
+
+#### Week 04, Mapping and Matching
+
+```bash
+git checkout 04-mapping-and-matching
+```
+
+#### Week 05, IMU Calibration
+
+```bash
+git checkout 05-imu-calib
+```
+
+#### Week 06, IMU Navigation
+
+```bash
+git checkout 06-imu-navigation
+```
+
+#### Week 07, Filtering, Basic
+
+```bash
+git checkout 07-filtering-basic
+```
+
+#### Week 08, Filtering Advanced
+
+```bash
+git checkout 08-filtering-advanced
+```
+
+#### Week 09, Graph Optimization
+
+```bash
+git checkout 09-graph-optimization
+```
+
+#### Week 10, Sliding Window
+
+```bash
+git checkout 10-sliding-window
+```
+
+#### Week 11, Capstone - Do It Own Your Own!
 
 ---
 
