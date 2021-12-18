@@ -16,9 +16,9 @@
 
 #include "lidar_localization/models/scan_context_manager/scan_context_manager.hpp"
 
-#include "lidar_localization/models/scan_context_manager/scan_contexts.pb.h"
-#include "lidar_localization/models/scan_context_manager/ring_keys.pb.h"
-#include "lidar_localization/models/scan_context_manager/key_frames.pb.h"
+#include "lidar_localization/models/scan_context_manager/scan_contexts.pb.hpp"
+#include "lidar_localization/models/scan_context_manager/ring_keys.pb.hpp"
+#include "lidar_localization/models/scan_context_manager/key_frames.pb.hpp"
 
 #include "glog/logging.h"
 
