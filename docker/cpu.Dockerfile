@@ -223,10 +223,10 @@ RUN git clone https://github.com/ceres-solver/ceres-solver.git -o ceres-solver &
     mkdir ceres-bin && cd ceres-bin && cmake ../ceres-solver && \
     make -j8 && make install
 
-# install g2o -- release 20201223_git:
+# install g2o -- release 20200410_git:
 RUN git clone https://github.com/RainerKuemmerle/g2o.git -o g2o && cd g2o && \
     # align version:
-    git fetch --all --tags && git checkout tags/20201223_git -b release-20201223 && \
+    git fetch --all --tags && git checkout tags/20200410_git -b release-20200410 && \
     # start to build:
     mkdir build && cd build && \
     # config:
