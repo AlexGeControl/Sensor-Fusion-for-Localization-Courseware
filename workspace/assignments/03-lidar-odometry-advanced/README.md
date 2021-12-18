@@ -12,6 +12,28 @@
 
 ## Getting Started
 
+## Getting Started
+
+### 环境检查: 确保Git Repo与使用的Docker Image均为最新
+
+首先, 请确保选择了正确的branch **02-lidar-odometry-basic**:
+
+<img src="doc/branch-check.png" alt="Branch Check" width="100%">
+
+执行以下命令，确保所使用的Git Repo与Docker Image均为最新:
+
+```bash
+# update git repo:
+git pull
+#
+# update docker image:
+#
+# 1. first, login to Sensor Fusion registry -- default password is shenlansf20210122:
+docker login --username=937570601@qq.com registry.cn-shanghai.aliyuncs.com
+# 2. then download images:
+docker pull registry.cn-shanghai.aliyuncs.com/shenlanxueyuan/sensor-fusion-workspace:bionic-cpu-vnc
+```
+
 ### 及格要求: 推导残差模型的雅可比
 
 Good Luck & 干就完了
@@ -59,7 +81,6 @@ rosbag play kitti_lidar_only_2011_10_03_drive_0027_synced.bag
 本次作业的代码框架基于秦通大佬的[ALOAM](https://github.com/HKUST-Aerial-Robotics/A-LOAM)改造. 提供如下的两个版本:
 
 * Option 1: 针对深蓝学院教学框架深度适配版, loam.launch
-    * 仅保留了**点云预处理**与**前端**两部分.
     * 将ALOAM全部节点按照教学框架设计理念进行重构.
 
 * Option 2: 简易适配版, aloam.launch
