@@ -15,8 +15,9 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 * [视觉SLAM进阶-从零开始手写VIO](https://www.shenlanxueyuan.com/course/388)
 * [激光SLAM理论与实践](https://www.shenlanxueyuan.com/course/348)
 
-且有多年的机器人系统开发经验, 熟悉以下的开发语言/框架/工具:
+且有多年的机器人系统开发经验, 熟悉以下的基础理论, 开发语言/框架/工具:
 
+* **State Estimation for Robotics** [Reference Book](https://www.amazon.com/State-Estimation-Robotics-Timothy-Barfoot/dp/1107159393/ref=sr_1_1?crid=3A1AU9FS3OA4U&keywords=state+estimation+for+robotics&qid=1639835747&sprefix=state+estimation+for+robotic%2Caps%2C501&sr=8-1)
 * **Modern C++ (11 and above)** [Reference Book](https://www.amazon.com/Effective-Modern-Specific-Ways-Improve/dp/1491903996/ref=sr_1_1?crid=3FBSOVE5S7DG2&keywords=effective+modern+c%2B%2B&qid=1639809190&sprefix=effective+modern+c%2B%2Caps%2C573&sr=8-1)
 * Python
 * **ROS**
@@ -101,6 +102,8 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 ---
 
 ### Assignments
+
+请各位执行如下的分支切换指令, 完成各周对应的作业.
 
 #### Week 02, Lidar Odometry, Basic
 
