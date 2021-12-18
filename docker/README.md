@@ -20,19 +20,19 @@
 
 请参考[Docker官方文档](https://docs.docker.com/engine/install/ubuntu/)完成`Docker`环境的安装
 
-安装完成后, 还需要进行`如下操作`, 以保证环境的易用性:
+**安装完成后, 请务必进行如下操作**, 以保证可以无脑跟随后续文档进行操作:
 
 #### 将当前用户加入Docker Group
 
 为了能在非`sudo`模式下使用`Docker`, 需要将当前用户加入`Docker Group`.
 
-* 执行命令:
+1. 执行命令:
     
     ```bash
     sudo usermod -aG docker $USER
     ```
 
-* **为了使上述变更生效，请先Logout，再Login**
+2. **为了使上述变更生效，请先Logout，再Login**
 
 ---
 
@@ -47,6 +47,8 @@
 ## 获取镜像
 
 在安装完成`Docker`以及`Docker-Compose`之后，需要从`阿里云`源上获得所需镜像.
+
+**注意**: 执行第1条命令时，**需要输入密码!!!需要输入密码!!!需要输入密码!!!**, 密码请看**命令上方注释行的绿字!!!命令上方注释行的绿字!!!命令上方注释行的绿字!!!***
 
 ```bash
 # login to Sensor Fusion registry -- default password -- shenlansf20210122:
@@ -65,17 +67,13 @@ docker pull registry.cn-shanghai.aliyuncs.com/shenlanxueyuan/sensor-fusion-works
 docker-compose down && docker-compose up
 ```
 
-成功启动后, 命令行输出如下:
-
-<img src="doc/01-launch-instance.png" width="100%" alt="Launch Workspace"/>
-
 ---
 
 ### Service Health Check
 
 然后打开`Chrome`浏览器, 访问URL`http://localhost:49001/`, 默认账号/密码为`sensorfusion/sensorfusion`, 确保所有服务成功启动. 
 
-若所有服务成功启动, 系统状态如下图所示:
+若**所有服务成功启动**, 系统状态如下图所示:
 
 <img src="doc/02-service-health-check.png" width="100%" alt="Service Health Check"/>
 

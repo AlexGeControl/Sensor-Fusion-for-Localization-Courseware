@@ -138,82 +138,7 @@ RUN apt-fast update --fix-missing && \
 # ordered startup fix for supervisord:
 RUN pip install ordered-startup-supervisord
 
-# ------ PART 5: offline installers ------
-
-# load installers:
-COPY ${PWD}/installers /tmp/installers
-WORKDIR /tmp/installers
-
-# install Google Protobuf latest:
-RUN git clone https://github.com/google/protobuf.git -o protobuf && cd protobuf && \
-    # sync:
-    git submodule update --init --recursive && \
-    # config:
-    ./autogen.sh && ./configure && \ 
-    # build:
-    make -j8 && \
-    # install:
-    make install
-
-# install Aceinna GNSS/IMU sim IMU-GNSS-Odo simulation with customized error modes:
-RUN git clone https://github.com/AlexGeControl/GNSS-INS-SIM-Extended.git && cd GNSS-INS-SIM-Extended && \
-    # install:
-    python setup.py install
-
-# install GeographicLib -- https://geographiclib.sourceforge.io/html/install.html
-RUN wget https://nchc.dl.sourceforge.net/project/geographiclib/distrib/GeographicLib-1.50.1.zip && \
-    unzip -q GeographicLib-1.50.1.zip && cd GeographicLib-1.50.1 && \
-    mkdir build && cd build && \
-    # config:
-    cmake .. && \
-    # build:
-    make -j8 && \
-    # install:
-    make install
-
-# install sophus -- https://github.com/strasdat/Sophus:
-RUN git clone https://github.com/strasdat/Sophus.git -o Sophus && cd Sophus && \
-    mkdir build && cd build && \
-    # config:
-    cmake .. && \
-    # build:
-    make -j8 && \
-    # install:
-    make install
-
-# install ceres:
-RUN git clone https://github.com/ceres-solver/ceres-solver.git -o ceres-solver && \
-    mkdir ceres-bin && cd ceres-bin && cmake ../ceres-solver && \
-    make -j8 && make install
-
-# install g2o -- https://github.com/RainerKuemmerle/g2o:
-RUN git clone https://github.com/RainerKuemmerle/g2o.git -o g2o && cd g2o && \
-    mkdir build && cd build && \
-    # config:
-    cmake .. && \
-    # build:
-    make -j8 && \
-    # install:
-    make install
-
-# install gtsam -- https://github.com/borglab/gtsam.git
-RUN git clone https://github.com/borglab/gtsam.git -o gtsam && cd gtsam && \
-    mkdir build && cd build && \
-    # config:
-    cmake .. && \
-    # build:
-    make -j8 && \
-    # install:
-    make install
-
-# install tini:
-RUN chmod u+x ./download-tini.sh && ./download-tini.sh && dpkg -i tini.deb && \
-    apt-get clean
-
-RUN rm -rf /tmp/installers
-
-
-# ------ PART 6: set up ROS environments ------
+# ------ PART 5: set up ROS environments ------
 
 # initialize rosdep
 # 
@@ -249,7 +174,88 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 EXPOSE 80 5901 9001
 
-# ------ PART 7: set up Sensor Fusion courseware dependencies ------
+
+# ------ PART 7: library dependencies ------
+
+# load installers:
+COPY ${PWD}/installers /tmp/installers
+WORKDIR /tmp/installers
+
+# install Google Protobuf -- 3.14.x:
+RUN git clone https://github.com/google/protobuf.git -b 3.14.x -o protobuf && cd protobuf && \
+    # sync:
+    git submodule update --init --recursive && \
+    # config:
+    ./autogen.sh && ./configure && \ 
+    # build:
+    make -j8 && \
+    # install:
+    make install
+
+# install Aceinna GNSS/IMU sim IMU-GNSS-Odo simulation with customized error modes:
+RUN git clone https://github.com/AlexGeControl/GNSS-INS-SIM-Extended.git && cd GNSS-INS-SIM-Extended && \
+    # install:
+    python setup.py install
+
+# install GeographicLib -- 1.50.1
+RUN wget https://nchc.dl.sourceforge.net/project/geographiclib/distrib/GeographicLib-1.50.1.zip && \
+    unzip -q GeographicLib-1.50.1.zip && cd GeographicLib-1.50.1 && \
+    mkdir build && cd build && \
+    # config:
+    cmake .. && \
+    # build:
+    make -j8 && \
+    # install:
+    make install
+
+# install sophus -- latest:
+RUN git clone https://github.com/strasdat/Sophus.git -o Sophus && cd Sophus && \
+    mkdir build && cd build && \
+    # config:
+    cmake .. && \
+    # build:
+    make -j8 && \
+    # install:
+    make install
+
+# install ceres -- latest:
+RUN git clone https://github.com/ceres-solver/ceres-solver.git -o ceres-solver && \
+    mkdir ceres-bin && cd ceres-bin && cmake ../ceres-solver && \
+    make -j8 && make install
+
+# install g2o -- release 20201223_git:
+RUN git clone https://github.com/RainerKuemmerle/g2o.git -o g2o && cd g2o && \
+    # align version:
+    git fetch --all --tags && git checkout tags/20201223_git -b release-20201223 && \
+    # start to build:
+    mkdir build && cd build && \
+    # config:
+    cmake .. && \
+    # build:
+    make -j8 && \
+    # install:
+    make install
+
+# install gtsam -- 4.0.3:
+RUN git clone https://github.com/borglab/gtsam.git -o gtsam && cd gtsam && \
+    # align version:
+    git fetch --all --tags && git checkout tags/4.0.3 -b release-4.0.3 && \
+    # start to build:
+    mkdir build && cd build && \
+    # config:
+    cmake .. && \
+    # build:
+    make -j8 && \
+    # install:
+    make install
+
+# install tini:
+RUN chmod u+x ./download-tini.sh && ./download-tini.sh && dpkg -i tini.deb && \
+    apt-get clean
+
+RUN rm -rf /tmp/installers
+
+# ------ PART 8: Python dependencies ------
 
 COPY environment /workspace
 
