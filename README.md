@@ -6,6 +6,24 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 
 ---
 
+## 先修课程检查
+
+我在学习这门课程时，已经完成如下深蓝学院课程的学习:
+
+* [机器人学中的状态估计](https://www.shenlanxueyuan.com/course/421)
+* [视觉SLAM理论与实践](https://www.shenlanxueyuan.com/course/433)
+* [视觉SLAM进阶-从零开始手写VIO](https://www.shenlanxueyuan.com/course/388)
+* [激光SLAM理论与实践](https://www.shenlanxueyuan.com/course/348)
+
+且有多年的机器人系统开发经验, 熟悉以下的开发语言/框架/工具:
+
+* C/C++
+* Python
+* ROS
+* Git/GitHub, Markdown与LaTex
+
+---
+
 ## Overview
 
 本Repo为基于**ROS melodic** @ **Ubuntu 18.04**的[多传感器融合定位与建图/Multi-Sensor Fusion for Localization & Mapping](https://www.shenlanxueyuan.com/course/324)学习环境. 
@@ -20,11 +38,15 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 
 * 本项目Native PC的操作系统选择**Ubuntu**. Windows与Mac不推荐使用, 若有意尝试, 请自行搜索相关解决方案.
 
+---
 
-**若您坚持在Native PC上进行开发**, 此处**将默认您有足够的定位&建图开发环境运维经验, 能够自定义开发环境, 并且自主解决由于环境依赖冲突导致的各种问题**. 请您
+# Note - Environment 
 
+**若您坚持在Native Ubuntu上进行开发**, 此处**将默认您有足够的定位&建图开发环境运维经验, 能够自定义开发环境, 并且自主解决由于环境依赖冲突导致的各种问题**. 请您
+
+* 确保熟悉Docker与Docker-Compose的开发使用
 * 根据Dockerfile[here](docker/cpu.Dockerfile)自行准备开发环境
-* 熟悉其中的各个依赖库, 有能力在出现依赖问题时, 自行查询相关资料, 修复依赖冲突
+* 熟悉其中的各个依赖库, 有能力在出现依赖问题时, 自行搜索, 查询相关资料, 修复依赖冲突
 
 ---
 
@@ -51,6 +73,14 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 #### 获取课程数据
 
 在第一次使用时, 需要将**课程配套的修复后KITTI数据**下载至本地文件系统. 具体操作方法参考[点击链接进入](workspace/data/kitti/README.md)
+
+#### 安装Native Ubuntu IDE
+
+本课程推荐使用[VSCode](https://code.visualstudio.com/)进行开发. 安装VSCode之后，推荐继续安装以下VSCode Plug-Ins:
+
+* **C/C++** by **Microsoft**
+
+* **Markdown All in One** by **Yu Zhang**
 
 #### 开发, 编译与测试
 
