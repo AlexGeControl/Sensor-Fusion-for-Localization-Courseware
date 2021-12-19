@@ -10,18 +10,27 @@
 
 ---
 
-## 提示
-
-本框架在发布前, **只会在课程提供的Docker环境下进行测试**. 
-
-**若依然选择在Native环境下开发**, 因为没有人比你自己更了解你的环境, 则默认你:
-
-* 拥有足够的环境配置管理能力
-* 遇到问题时可以**自行寻找相关资源解决**. 
-
----
-
 ## Getting Started
+
+### 环境检查: 确保Git Repo与使用的Docker Image均为最新
+
+首先, 请确保选择了正确的branch **07-filtering-basic**:
+
+<img src="doc/images/branch-check.png" alt="Branch Check" width="100%">
+
+执行以下命令，确保所使用的Git Repo与Docker Image均为最新:
+
+```bash
+# update git repo:
+git pull
+#
+# update docker image:
+#
+# 1. first, login to Sensor Fusion registry -- default password is shenlansf20210122:
+docker login --username=937570601@qq.com registry.cn-shanghai.aliyuncs.com
+# 2. then download images:
+docker pull registry.cn-shanghai.aliyuncs.com/shenlanxueyuan/sensor-fusion-workspace:bionic-cpu-vnc
+```
 
 ### 及格要求: 补全代码，且滤波功能正常
 
