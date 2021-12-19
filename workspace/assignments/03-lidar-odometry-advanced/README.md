@@ -12,8 +12,6 @@
 
 ## Getting Started
 
-## Getting Started
-
 ### 环境检查: 确保Git Repo与使用的Docker Image均为最新
 
 首先, 请确保选择了正确的branch **03-lidar-odometry-advanced**:
