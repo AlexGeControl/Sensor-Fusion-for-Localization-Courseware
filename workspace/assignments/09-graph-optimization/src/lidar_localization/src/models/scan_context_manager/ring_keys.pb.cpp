@@ -14,34 +14,44 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-
-PROTOBUF_PRAGMA_INIT_SEG
+extern PROTOBUF_INTERNAL_EXPORT_ring_5fkeys_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_RingKey_ring_5fkeys_2eproto;
 namespace scan_context_io {
-constexpr RingKey::RingKey(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : data_(){}
-struct RingKeyDefaultTypeInternal {
-  constexpr RingKeyDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~RingKeyDefaultTypeInternal() {}
-  union {
-    RingKey _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RingKeyDefaultTypeInternal _RingKey_default_instance_;
-constexpr RingKeys::RingKeys(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : data_(){}
-struct RingKeysDefaultTypeInternal {
-  constexpr RingKeysDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~RingKeysDefaultTypeInternal() {}
-  union {
-    RingKeys _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RingKeysDefaultTypeInternal _RingKeys_default_instance_;
+class RingKeyDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<RingKey> _instance;
+} _RingKey_default_instance_;
+class RingKeysDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<RingKeys> _instance;
+} _RingKeys_default_instance_;
 }  // namespace scan_context_io
+static void InitDefaultsscc_info_RingKey_ring_5fkeys_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::scan_context_io::_RingKey_default_instance_;
+    new (ptr) ::scan_context_io::RingKey();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_RingKey_ring_5fkeys_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_RingKey_ring_5fkeys_2eproto}, {}};
+
+static void InitDefaultsscc_info_RingKeys_ring_5fkeys_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::scan_context_io::_RingKeys_default_instance_;
+    new (ptr) ::scan_context_io::RingKeys();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_RingKeys_ring_5fkeys_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_RingKeys_ring_5fkeys_2eproto}, {
+      &scc_info_RingKey_ring_5fkeys_2eproto.base,}};
+
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_ring_5fkeys_2eproto[2];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_ring_5fkeys_2eproto = nullptr;
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_ring_5fkeys_2eproto = nullptr;
@@ -75,19 +85,22 @@ const char descriptor_table_protodef_ring_5fkeys_2eproto[] PROTOBUF_SECTION_VARI
   "ngKey\022\014\n\004data\030\001 \003(\002\"2\n\010RingKeys\022&\n\004data\030"
   "\001 \003(\0132\030.scan_context_io.RingKey"
   ;
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_ring_5fkeys_2eproto_deps[1] = {
+};
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_ring_5fkeys_2eproto_sccs[2] = {
+  &scc_info_RingKey_ring_5fkeys_2eproto.base,
+  &scc_info_RingKeys_ring_5fkeys_2eproto.base,
+};
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_ring_5fkeys_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_ring_5fkeys_2eproto = {
-  false, false, 111, descriptor_table_protodef_ring_5fkeys_2eproto, "ring_keys.proto", 
-  &descriptor_table_ring_5fkeys_2eproto_once, nullptr, 0, 2,
+  false, false, descriptor_table_protodef_ring_5fkeys_2eproto, "ring_keys.proto", 111,
+  &descriptor_table_ring_5fkeys_2eproto_once, descriptor_table_ring_5fkeys_2eproto_sccs, descriptor_table_ring_5fkeys_2eproto_deps, 2, 0,
   schemas, file_default_instances, TableStruct_ring_5fkeys_2eproto::offsets,
-  file_level_metadata_ring_5fkeys_2eproto, file_level_enum_descriptors_ring_5fkeys_2eproto, file_level_service_descriptors_ring_5fkeys_2eproto,
+  file_level_metadata_ring_5fkeys_2eproto, 2, file_level_enum_descriptors_ring_5fkeys_2eproto, file_level_service_descriptors_ring_5fkeys_2eproto,
 };
-PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_ring_5fkeys_2eproto_getter() {
-  return &descriptor_table_ring_5fkeys_2eproto;
-}
 
 // Force running AddDescriptors() at dynamic initialization time.
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_ring_5fkeys_2eproto(&descriptor_table_ring_5fkeys_2eproto);
+static bool dynamic_init_dummy_ring_5fkeys_2eproto = (static_cast<void>(::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_ring_5fkeys_2eproto)), true);
 namespace scan_context_io {
 
 // ===================================================================
@@ -132,6 +145,11 @@ void RingKey::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
 void RingKey::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
+const RingKey& RingKey::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_RingKey_ring_5fkeys_2eproto.base);
+  return *internal_default_instance();
+}
+
 
 void RingKey::Clear() {
 // @@protoc_insertion_point(message_clear_start:scan_context_io.RingKey)
@@ -148,6 +166,7 @@ const char* RingKey::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
     switch (tag >> 3) {
       // repeated float data = 1;
       case 1:
@@ -166,8 +185,7 @@ const char* RingKey::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       default: {
       handle_unusual:
-        if ((tag == 0) || ((tag & 7) == 4)) {
-          CHK_(ptr);
+        if ((tag & 7) == 4 || tag == 0) {
           ctx->SetLastTag(tag);
           goto success;
         }
@@ -283,10 +301,9 @@ void RingKey::InternalSwap(RingKey* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata RingKey::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ring_5fkeys_2eproto_getter, &descriptor_table_ring_5fkeys_2eproto_once,
-      file_level_metadata_ring_5fkeys_2eproto[0]);
+  return GetMetadataStatic();
 }
+
 
 // ===================================================================
 
@@ -309,6 +326,7 @@ RingKeys::RingKeys(const RingKeys& from)
 }
 
 void RingKeys::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_RingKeys_ring_5fkeys_2eproto.base);
 }
 
 RingKeys::~RingKeys() {
@@ -330,6 +348,11 @@ void RingKeys::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
 void RingKeys::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
+const RingKeys& RingKeys::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_RingKeys_ring_5fkeys_2eproto.base);
+  return *internal_default_instance();
+}
+
 
 void RingKeys::Clear() {
 // @@protoc_insertion_point(message_clear_start:scan_context_io.RingKeys)
@@ -346,6 +369,7 @@ const char* RingKeys::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
     switch (tag >> 3) {
       // repeated .scan_context_io.RingKey data = 1;
       case 1:
@@ -361,8 +385,7 @@ const char* RingKeys::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         continue;
       default: {
       handle_unusual:
-        if ((tag == 0) || ((tag & 7) == 4)) {
-          CHK_(ptr);
+        if ((tag & 7) == 4 || tag == 0) {
           ctx->SetLastTag(tag);
           goto success;
         }
@@ -478,10 +501,9 @@ void RingKeys::InternalSwap(RingKeys* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata RingKeys::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ring_5fkeys_2eproto_getter, &descriptor_table_ring_5fkeys_2eproto_once,
-      file_level_metadata_ring_5fkeys_2eproto[1]);
+  return GetMetadataStatic();
 }
+
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace scan_context_io

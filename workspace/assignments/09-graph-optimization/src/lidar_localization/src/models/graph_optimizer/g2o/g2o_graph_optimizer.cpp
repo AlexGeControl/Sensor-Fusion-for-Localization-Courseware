@@ -491,7 +491,7 @@ Eigen::MatrixXd G2oGraphOptimizer::CalculateSe3EdgeInformationMatrix(Eigen::Vect
     return information_matrix;
 }
 
-// TODO: 姿态观测的信息矩阵尚未添加
+// 姿态观测的信息矩阵尚未添加
 // 备注：各位使用时可只用位置观测，而不用姿态观测，影响不大
 // 我自己在别的地方尝试过增加姿态观测，但效果反而变差，如果感兴趣，可自己编写此处的信息矩阵，并在后端优化中添加相应的边进行验证
 Eigen::MatrixXd G2oGraphOptimizer::CalculateSe3PriorQuaternionEdgeInformationMatrix(Eigen::VectorXd noise) {
