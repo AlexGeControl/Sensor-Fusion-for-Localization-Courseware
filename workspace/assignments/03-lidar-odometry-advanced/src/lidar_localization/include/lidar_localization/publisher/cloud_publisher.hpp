@@ -23,13 +23,13 @@ class CloudPublisher {
                    size_t buff_size);
     CloudPublisher() = default;
 
-    void Publish(CloudData::CLOUD_PTR& cloud_ptr_input, double time);
-    void Publish(CloudData::CLOUD_PTR& cloud_ptr_input);
+    void Publish(CloudDataXYZI::CLOUD_PTR& cloud_ptr_input, double time);
+    void Publish(CloudDataXYZI::CLOUD_PTR& cloud_ptr_input);
 
     bool HasSubscribers();
   
   private:
-    void PublishData(CloudData::CLOUD_PTR& cloud_ptr_input, ros::Time time);
+    void PublishData(CloudDataXYZI::CLOUD_PTR& cloud_ptr_input, ros::Time time);
 
   private:
     ros::NodeHandle nh_;

@@ -31,10 +31,10 @@ class ScanScanRegistration {
     ScanScanRegistration(void);
 
     bool Update(
-      CloudData::CLOUD_PTR corner_sharp,
-      CloudData::CLOUD_PTR corner_less_sharp,
-      CloudData::CLOUD_PTR surf_flat,
-      CloudData::CLOUD_PTR surf_less_flat,
+      CloudDataXYZI::CLOUD_PTR corner_sharp,
+      CloudDataXYZI::CLOUD_PTR corner_less_sharp,
+      CloudDataXYZI::CLOUD_PTR surf_flat,
+      CloudDataXYZI::CLOUD_PTR surf_less_flat,
       Eigen::Matrix4f& lidar_odometry
     );
 
@@ -70,31 +70,31 @@ class ScanScanRegistration {
     bool InitParam(const YAML::Node& config_node);
     bool InitKdTrees(void);
 
-    bool TransformToStart(const CloudData::POINT &input, CloudData::POINT &output);
+    bool TransformToStart(const CloudDataXYZI::POINT &input, CloudDataXYZI::POINT &output);
 
     bool AssociateCornerPoints(
-      const CloudData::CLOUD &corner_sharp,
+      const CloudDataXYZI::CLOUD &corner_sharp,
       std::vector<CornerPointAssociation> &corner_point_associations
     );
     bool AssociateSurfacePoints(
-      const CloudData::CLOUD &surf_flat,
+      const CloudDataXYZI::CLOUD &surf_flat,
       std::vector<SurfacePointAssociation> &surface_point_associations
     );
 
     int AddEdgeFactors(
-        const CloudData::CLOUD &corner_sharp,
+        const CloudDataXYZI::CLOUD &corner_sharp,
         const std::vector<CornerPointAssociation> &corner_point_associations,
         CeresALOAMRegistration &aloam_registration
     );
     int AddPlaneFactors(
-        const CloudData::CLOUD &surf_flat,
+        const CloudDataXYZI::CLOUD &surf_flat,
         const std::vector<SurfacePointAssociation> &surface_point_associations,
         CeresALOAMRegistration &aloam_registration
     );
 
     bool SetTargetPoints(
-      const CloudData::CLOUD_PTR &corner_less_sharp,
-      const CloudData::CLOUD_PTR &surf_less_flat
+      const CloudDataXYZI::CLOUD_PTR &corner_less_sharp,
+      const CloudDataXYZI::CLOUD_PTR &surf_less_flat
     );
 
     bool UpdateOdometry(Eigen::Matrix4f& lidar_odometry);
@@ -114,11 +114,11 @@ class ScanScanRegistration {
 
     // target corner & plane feature points:
     struct {
-      CloudData::CLOUD_PTR candidate_corner_ptr;
-      pcl::KdTreeFLANN<CloudData::POINT>::Ptr corner;
+      CloudDataXYZI::CLOUD_PTR candidate_corner_ptr;
+      pcl::KdTreeFLANN<CloudDataXYZI::POINT>::Ptr corner;
 
-      CloudData::CLOUD_PTR candidate_surface_ptr;
-      pcl::KdTreeFLANN<CloudData::POINT>::Ptr surface;
+      CloudDataXYZI::CLOUD_PTR candidate_surface_ptr;
+      pcl::KdTreeFLANN<CloudDataXYZI::POINT>::Ptr surface;
     } kdtree_;
 
     // whether the front end is inited:

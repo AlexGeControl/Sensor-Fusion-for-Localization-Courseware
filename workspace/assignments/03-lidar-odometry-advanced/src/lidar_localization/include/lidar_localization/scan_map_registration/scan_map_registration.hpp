@@ -48,8 +48,8 @@ class ScanMapRegistration {
     ScanMapRegistration(void);
 
     bool Update(
-      const CloudData::CLOUD_PTR sharp_points,
-      const CloudData::CLOUD_PTR flat_points,
+      const CloudDataXYZI::CLOUD_PTR sharp_points,
+      const CloudDataXYZI::CLOUD_PTR flat_points,
       const Eigen::Matrix4f& odom_scan_to_scan,
       Eigen::Matrix4f& lidar_odometry
     );
@@ -93,8 +93,8 @@ class ScanMapRegistration {
     } filter_;
     // target line & plane feature points:
     struct {
-      pcl::KdTreeFLANN<CloudData::POINT>::Ptr sharp;
-      pcl::KdTreeFLANN<CloudData::POINT>::Ptr flat;
+      pcl::KdTreeFLANN<CloudDataXYZI::POINT>::Ptr sharp;
+      pcl::KdTreeFLANN<CloudDataXYZI::POINT>::Ptr flat;
     } kdtree_;
 
     std::unique_ptr<aloam::SubMap> submap_ptr_{nullptr};
@@ -108,17 +108,17 @@ class ScanMapRegistration {
     bool SetTargetPoints(aloam::SubMap::LocalMap& local_map);
 
     bool ProjectToMapFrame(
-      const CloudData::CLOUD_PTR& source,
-      CloudData::CLOUD_PTR& query
+      const CloudDataXYZI::CLOUD_PTR& source,
+      CloudDataXYZI::CLOUD_PTR& query
     );
     int AddEdgeFactors(
-      const CloudData::CLOUD_PTR source,
-      const CloudData::CLOUD_PTR target,
+      const CloudDataXYZI::CLOUD_PTR source,
+      const CloudDataXYZI::CLOUD_PTR target,
       CeresALOAMRegistration &aloam_registration 
     );
     int AddPlaneFactors(
-      const CloudData::CLOUD_PTR source,
-      const CloudData::CLOUD_PTR target,
+      const CloudDataXYZI::CLOUD_PTR source,
+      const CloudDataXYZI::CLOUD_PTR target,
       CeresALOAMRegistration &aloam_registration 
     );
 

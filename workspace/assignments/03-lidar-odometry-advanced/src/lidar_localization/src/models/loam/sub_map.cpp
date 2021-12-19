@@ -28,8 +28,8 @@ SubMap::SubMap(const SubMap::Config& config) {
     tiles_.flat.resize(config_.num_tiles);
 
     for (int i = 0; i < config_.num_tiles; ++i) {
-        tiles_.sharp.at(i).reset(new CloudData::CLOUD());
-        tiles_.flat.at(i).reset(new CloudData::CLOUD());
+        tiles_.sharp.at(i).reset(new CloudDataXYZI::CLOUD());
+        tiles_.flat.at(i).reset(new CloudDataXYZI::CLOUD());
     }
 
     recently_accessed_.sharp.clear();
@@ -58,14 +58,14 @@ SubMap::LocalMap SubMap::GetLocalMap(
 };
 
 bool SubMap::RegisterLineFeaturePoints(
-    const CloudData::CLOUD_PTR points, 
+    const CloudDataXYZI::CLOUD_PTR points, 
     const Eigen::Quaterniond& q, const Eigen::Vector3d& t
 ) {
     return RegisterFeaturePoints(points, q, t, tiles_.sharp, recently_accessed_.sharp);
 }
 
 bool SubMap::RegisterPlaneFeaturePoints(
-    const CloudData::CLOUD_PTR points, 
+    const CloudDataXYZI::CLOUD_PTR points, 
     const Eigen::Quaterniond& q, const Eigen::Vector3d& t
 ) {
     return RegisterFeaturePoints(points, q, t, tiles_.flat, recently_accessed_.flat);
@@ -108,7 +108,7 @@ SubMap::Index SubMap::GetTileIndex(const Eigen::Vector3d &t) {
     return index;
 }
 
-SubMap::Index SubMap::GetTileIndex(const CloudData::POINT &point) {
+SubMap::Index SubMap::GetTileIndex(const CloudDataXYZI::POINT &point) {
     Eigen::Vector3d t{
         point.x, point.y, point.z
     };
@@ -349,8 +349,8 @@ SubMap::LocalMap SubMap::GetLocalMap(
     SubMap::LocalMap local_map;
 
     local_map.query_index = query_index;
-    local_map.sharp.reset(new CloudData::CLOUD());
-    local_map.flat.reset(new CloudData::CLOUD());
+    local_map.sharp.reset(new CloudDataXYZI::CLOUD());
+    local_map.flat.reset(new CloudDataXYZI::CLOUD());
 
     const auto local_map_radius = config_.local_map_radius;
     for (int dx = -local_map_radius; dx <= local_map_radius; ++dx) {
@@ -377,8 +377,8 @@ SubMap::LocalMap SubMap::GetLocalMap(
 
 bool SubMap::ProjectToMapFrame(
     const Eigen::Quaterniond& q, const Eigen::Vector3d& t,
-    const CloudData::CLOUD_PTR& source,
-    CloudData::CLOUD_PTR& target
+    const CloudDataXYZI::CLOUD_PTR& source,
+    CloudDataXYZI::CLOUD_PTR& target
 ) {
     Eigen::Matrix4f transform_matrix = Eigen::Matrix4f::Identity();
 
@@ -391,14 +391,14 @@ bool SubMap::ProjectToMapFrame(
 }
 
 bool SubMap::RegisterFeaturePoints(
-    const CloudData::CLOUD_PTR points, 
+    const CloudDataXYZI::CLOUD_PTR points, 
     const Eigen::Quaterniond& q, const Eigen::Vector3d& t,
-    std::vector<CloudData::CLOUD_PTR> &tiles,
+    std::vector<CloudDataXYZI::CLOUD_PTR> &tiles,
     std::set<size_t>& recently_accessed
 ) {
     const auto num_feature_points = points->points.size();
 
-    CloudData::CLOUD_PTR target(new CloudData::CLOUD());
+    CloudDataXYZI::CLOUD_PTR target(new CloudDataXYZI::CLOUD());
     ProjectToMapFrame(q, t, points, target);
 
     for (size_t i = 0; i < num_feature_points; ++i)

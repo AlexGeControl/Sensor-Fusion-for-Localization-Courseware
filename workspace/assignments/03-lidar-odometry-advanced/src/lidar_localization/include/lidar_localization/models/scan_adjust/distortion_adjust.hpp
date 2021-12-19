@@ -19,7 +19,7 @@ namespace lidar_localization {
 class DistortionAdjust {
   public:
     void SetMotionInfo(float scan_period, VelocityData velocity_data);
-    bool AdjustCloud(CloudData::CLOUD_PTR& input_cloud_ptr, CloudData::CLOUD_PTR& output_cloud_ptr);
+    bool AdjustCloud(CloudDataXYZ::CLOUD_PTR& input_cloud_ptr, CloudDataXYZ::CLOUD_PTR& output_cloud_ptr);
 
   private:
     inline Eigen::Matrix3f UpdateMatrix(float real_time);

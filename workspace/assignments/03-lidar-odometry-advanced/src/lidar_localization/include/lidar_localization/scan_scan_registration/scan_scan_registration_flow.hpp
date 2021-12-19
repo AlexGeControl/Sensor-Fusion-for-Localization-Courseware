@@ -48,25 +48,25 @@ class ScanScanRegistrationFlow {
     bool inited_{false};
 
     // inputs: registered scans
-    std::unique_ptr<CloudSubscriber> filtered_cloud_sub_ptr_{nullptr};
-    std::deque<CloudData> filtered_cloud_buff_;
-    CloudData filtered_cloud_;
+    std::unique_ptr<CloudSubscriber<CloudDataXYZI>> filtered_cloud_sub_ptr_{nullptr};
+    std::deque<CloudDataXYZI> filtered_cloud_buff_;
+    CloudDataXYZI filtered_cloud_;
 
-    std::unique_ptr<CloudSubscriber> corner_points_sharp_sub_ptr_{nullptr};
-    std::deque<CloudData> corner_points_sharp_buff_;
-    CloudData corner_points_sharp_;
+    std::unique_ptr<CloudSubscriber<CloudDataXYZI>> corner_points_sharp_sub_ptr_{nullptr};
+    std::deque<CloudDataXYZI> corner_points_sharp_buff_;
+    CloudDataXYZI corner_points_sharp_;
 
-    std::unique_ptr<CloudSubscriber> corner_points_less_sharp_sub_ptr_{nullptr};
-    std::deque<CloudData> corner_points_less_sharp_buff_;
-    CloudData corner_points_less_sharp_;
+    std::unique_ptr<CloudSubscriber<CloudDataXYZI>> corner_points_less_sharp_sub_ptr_{nullptr};
+    std::deque<CloudDataXYZI> corner_points_less_sharp_buff_;
+    CloudDataXYZI corner_points_less_sharp_;
 
-    std::unique_ptr<CloudSubscriber> surf_points_flat_sub_ptr_{nullptr};
-    std::deque<CloudData> surf_points_flat_buff_;
-    CloudData surf_points_flat_;
+    std::unique_ptr<CloudSubscriber<CloudDataXYZI>> surf_points_flat_sub_ptr_{nullptr};
+    std::deque<CloudDataXYZI> surf_points_flat_buff_;
+    CloudDataXYZI surf_points_flat_;
 
-    std::unique_ptr<CloudSubscriber> surf_points_less_flat_sub_ptr_{nullptr};
-    std::deque<CloudData> surf_points_less_flat_buff_;
-    CloudData surf_points_less_flat_;
+    std::unique_ptr<CloudSubscriber<CloudDataXYZI>> surf_points_less_flat_sub_ptr_{nullptr};
+    std::deque<CloudDataXYZI> surf_points_less_flat_buff_;
+    CloudDataXYZI surf_points_less_flat_;
 
     // LOAM front end implementation:
     std::unique_ptr<ScanScanRegistration> scan_scan_registration_ptr_{nullptr};

@@ -37,32 +37,32 @@ class DataPretreat {
     DataPretreat(void);
 
     bool Update(
-      const CloudData& input_cloud, 
-      CloudData::CLOUD_PTR &output_cloud,
-      CloudData::CLOUD_PTR &corner_sharp,
-      CloudData::CLOUD_PTR &corner_less_sharp,
-      CloudData::CLOUD_PTR &surf_flat,
-      CloudData::CLOUD_PTR &surf_less_flat
+      const CloudDataXYZ& input_cloud, 
+      CloudDataXYZI::CLOUD_PTR &output_cloud,
+      CloudDataXYZI::CLOUD_PTR &corner_sharp,
+      CloudDataXYZI::CLOUD_PTR &corner_less_sharp,
+      CloudDataXYZI::CLOUD_PTR &surf_flat,
+      CloudDataXYZI::CLOUD_PTR &surf_less_flat
     );
   
   private:
     bool InitParam(const YAML::Node& config_node);
     bool InitFilters(const YAML::Node& config_node);
 
-    bool FilterByRange(const CloudData::CLOUD &input_cloud, CloudData::CLOUD &output_cloud);
+    bool FilterByRange(const CloudDataXYZ::CLOUD &input_cloud, CloudDataXYZ::CLOUD &output_cloud);
 
     bool GetScanId(const float &angle, int &scan_id);
-    float GetCurvature(const CloudData::CLOUD &cloud, int point_index);
+    float GetCurvature(const CloudDataXYZI::CLOUD &cloud, int point_index);
 
-    bool SortPointCloudByScan(const CloudData::CLOUD &input_cloud, CloudData::CLOUD &output_cloud);
+    bool SortPointCloudByScan(const CloudDataXYZ::CLOUD &input_cloud, CloudDataXYZI::CLOUD &output_cloud);
 
-    bool PickInNeighborhood(const CloudData::CLOUD &cloud, const int point_index, const float thresh);
+    bool PickInNeighborhood(const CloudDataXYZI::CLOUD &cloud, const int point_index, const float thresh);
     bool GetFeaturePoints(
-      const CloudData::CLOUD &cloud, 
-      CloudData::CLOUD_PTR &corner_sharp,
-      CloudData::CLOUD_PTR &corner_less_sharp,
-      CloudData::CLOUD_PTR &surf_flat,
-      CloudData::CLOUD_PTR &surf_less_flat
+      const CloudDataXYZI::CLOUD &cloud, 
+      CloudDataXYZI::CLOUD_PTR &corner_sharp,
+      CloudDataXYZI::CLOUD_PTR &corner_less_sharp,
+      CloudDataXYZI::CLOUD_PTR &surf_flat,
+      CloudDataXYZI::CLOUD_PTR &surf_less_flat
     );
 
   private:
@@ -88,7 +88,7 @@ class DataPretreat {
       } point;
     } index_;
 
-    std::unique_ptr<pcl::VoxelGrid<CloudData::POINT>> surf_less_flat_filter_ptr_{nullptr};
+    std::unique_ptr<pcl::VoxelGrid<CloudDataXYZI::POINT>> surf_less_flat_filter_ptr_{nullptr};
 };
 
 } // namespace lidar_localization

@@ -36,13 +36,13 @@ bool ScanMapRegistrationFlow::InitParam(const YAML::Node& config_node) {
 }
 
 bool ScanMapRegistrationFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node) {
-    mapping_sharp_points_sub_ptr_ = std::make_unique<CloudSubscriber>(
+    mapping_sharp_points_sub_ptr_ = std::make_unique<CloudSubscriber<CloudDataXYZI>>(
         nh, 
         config_node["sharp"]["topic_name"].as<std::string>(), 
         config_node["sharp"]["queue_size"].as<int>()
     );
 
-    mapping_flat_points_sub_ptr_ = std::make_unique<CloudSubscriber>(
+    mapping_flat_points_sub_ptr_ = std::make_unique<CloudSubscriber<CloudDataXYZI>>(
         nh, 
         config_node["flat"]["topic_name"].as<std::string>(), 
         config_node["flat"]["queue_size"].as<int>()

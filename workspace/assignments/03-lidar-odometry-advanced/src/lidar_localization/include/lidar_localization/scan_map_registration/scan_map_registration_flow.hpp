@@ -56,13 +56,13 @@ class ScanMapRegistrationFlow {
     bool inited_{false};
 
     // inputs: registered scans & scan-scan odometry:
-    std::unique_ptr<CloudSubscriber> mapping_sharp_points_sub_ptr_{nullptr};
-    std::deque<CloudData> mapping_sharp_points_buff_;
-    CloudData mapping_sharp_points_;
+    std::unique_ptr<CloudSubscriber<CloudDataXYZI>> mapping_sharp_points_sub_ptr_{nullptr};
+    std::deque<CloudDataXYZI> mapping_sharp_points_buff_;
+    CloudDataXYZI mapping_sharp_points_;
 
-    std::unique_ptr<CloudSubscriber> mapping_flat_points_sub_ptr_{nullptr};
-    std::deque<CloudData> mapping_flat_points_buff_;
-    CloudData mapping_flat_points_;
+    std::unique_ptr<CloudSubscriber<CloudDataXYZI>> mapping_flat_points_sub_ptr_{nullptr};
+    std::deque<CloudDataXYZI> mapping_flat_points_buff_;
+    CloudDataXYZI mapping_flat_points_;
 
     std::shared_ptr<OdometrySubscriber> odom_scan_to_scan_sub_ptr_;
     std::deque<PoseData> odom_scan_to_scan_buff_;

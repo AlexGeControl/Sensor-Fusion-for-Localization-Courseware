@@ -13,9 +13,9 @@ void DistortionAdjust::SetMotionInfo(float scan_period, VelocityData velocity_da
     angular_rate_ << velocity_data.angular_velocity.x, velocity_data.angular_velocity.y, velocity_data.angular_velocity.z;
 }
 
-bool DistortionAdjust::AdjustCloud(CloudData::CLOUD_PTR& input_cloud_ptr, CloudData::CLOUD_PTR& output_cloud_ptr) {
-    CloudData::CLOUD_PTR origin_cloud_ptr(new CloudData::CLOUD(*input_cloud_ptr));
-    output_cloud_ptr.reset(new CloudData::CLOUD());
+bool DistortionAdjust::AdjustCloud(CloudDataXYZ::CLOUD_PTR& input_cloud_ptr, CloudDataXYZ::CLOUD_PTR& output_cloud_ptr) {
+    CloudDataXYZ::CLOUD_PTR origin_cloud_ptr(new CloudDataXYZ::CLOUD(*input_cloud_ptr));
+    output_cloud_ptr.reset(new CloudDataXYZ::CLOUD());
 
     float orientation_space = 2.0 * M_PI;
     float delete_space = 5.0 * M_PI / 180.0;
@@ -47,7 +47,7 @@ bool DistortionAdjust::AdjustCloud(CloudData::CLOUD_PTR& input_cloud_ptr, CloudD
         Eigen::Matrix3f current_matrix = UpdateMatrix(real_time);
         Eigen::Vector3f rotated_point = current_matrix * origin_point;
         Eigen::Vector3f adjusted_point = rotated_point + velocity_ * real_time;
-        CloudData::POINT point;
+        CloudDataXYZ::POINT point;
         point.x = adjusted_point(0);
         point.y = adjusted_point(1);
         point.z = adjusted_point(2);

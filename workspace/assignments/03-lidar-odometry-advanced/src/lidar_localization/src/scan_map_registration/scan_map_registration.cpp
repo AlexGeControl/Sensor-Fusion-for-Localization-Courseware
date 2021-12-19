@@ -38,15 +38,15 @@ ScanMapRegistration::ScanMapRegistration(void) {
 }
 
 bool ScanMapRegistration::Update(
-    const CloudData::CLOUD_PTR sharp_points,
-    const CloudData::CLOUD_PTR flat_points,
+    const CloudDataXYZI::CLOUD_PTR sharp_points,
+    const CloudDataXYZI::CLOUD_PTR flat_points,
     const Eigen::Matrix4f& odom_scan_to_scan,
     Eigen::Matrix4f& lidar_odometry
 ) {
     // down sample feature points:
-    CloudData::CLOUD_PTR filtered_sharp_points(new CloudData::CLOUD());
+    CloudDataXYZI::CLOUD_PTR filtered_sharp_points(new CloudDataXYZI::CLOUD());
     filter_.sharp_filter_ptr_->Filter(sharp_points, filtered_sharp_points);
-    CloudData::CLOUD_PTR filtered_flat_points(new CloudData::CLOUD());
+    CloudDataXYZI::CLOUD_PTR filtered_flat_points(new CloudDataXYZI::CLOUD());
     filter_.flat_filter_ptr_->Filter(flat_points, filtered_flat_points);
 
     // predict scan-map odometry:
@@ -125,8 +125,8 @@ bool ScanMapRegistration::InitFilters(const YAML::Node& config_node) {
 }
 
 bool ScanMapRegistration::InitKdTrees(void) {
-    kdtree_.sharp.reset(new pcl::KdTreeFLANN<CloudData::POINT>());
-    kdtree_.flat.reset(new pcl::KdTreeFLANN<CloudData::POINT>());
+    kdtree_.sharp.reset(new pcl::KdTreeFLANN<CloudDataXYZI::POINT>());
+    kdtree_.flat.reset(new pcl::KdTreeFLANN<CloudDataXYZI::POINT>());
 
     return true;
 }
@@ -172,8 +172,8 @@ bool ScanMapRegistration::SetTargetPoints(
 }
 
 bool ScanMapRegistration::ProjectToMapFrame(
-    const CloudData::CLOUD_PTR& source,
-    CloudData::CLOUD_PTR& query
+    const CloudDataXYZI::CLOUD_PTR& source,
+    CloudDataXYZI::CLOUD_PTR& query
 ) {
     Eigen::Matrix4f transform_matrix = Eigen::Matrix4f::Identity();
 
@@ -186,13 +186,13 @@ bool ScanMapRegistration::ProjectToMapFrame(
 }
 
 int ScanMapRegistration::AddEdgeFactors(
-    const CloudData::CLOUD_PTR source,
-    const CloudData::CLOUD_PTR target,
+    const CloudDataXYZI::CLOUD_PTR source,
+    const CloudDataXYZI::CLOUD_PTR target,
     CeresALOAMRegistration &aloam_registration 
 ) {
     const auto num_feature_points = source->points.size();
 
-    CloudData::CLOUD_PTR query(new CloudData::CLOUD());
+    CloudDataXYZI::CLOUD_PTR query(new CloudDataXYZI::CLOUD());
     ProjectToMapFrame(source, query);
 
     std::vector<int> target_candidate_indices;
@@ -264,13 +264,13 @@ int ScanMapRegistration::AddEdgeFactors(
 }
 
 int ScanMapRegistration::AddPlaneFactors(
-    const CloudData::CLOUD_PTR source,
-    const CloudData::CLOUD_PTR target,
+    const CloudDataXYZI::CLOUD_PTR source,
+    const CloudDataXYZI::CLOUD_PTR target,
     CeresALOAMRegistration &aloam_registration 
 ) {
     const auto num_feature_points = source->points.size();
 
-    CloudData::CLOUD_PTR query(new CloudData::CLOUD());
+    CloudDataXYZI::CLOUD_PTR query(new CloudDataXYZI::CLOUD());
     ProjectToMapFrame(source, query);
 
     std::vector<int> target_candidate_indices;

@@ -94,8 +94,8 @@ public:
 
     struct LocalMap {
         Index query_index;
-        CloudData::CLOUD_PTR sharp;
-        CloudData::CLOUD_PTR flat;
+        CloudDataXYZI::CLOUD_PTR sharp;
+        CloudDataXYZI::CLOUD_PTR flat;
     };
 
     LocalMap GetLocalMap(
@@ -103,11 +103,11 @@ public:
     );
 
     bool RegisterLineFeaturePoints(
-        const CloudData::CLOUD_PTR points, 
+        const CloudDataXYZI::CLOUD_PTR points, 
         const Eigen::Quaterniond& q, const Eigen::Vector3d& t
     );
     bool RegisterPlaneFeaturePoints(
-        const CloudData::CLOUD_PTR points, 
+        const CloudDataXYZI::CLOUD_PTR points, 
         const Eigen::Quaterniond& q, const Eigen::Vector3d& t
     );
 
@@ -122,8 +122,8 @@ private:
     Index center_;
 
     struct {
-        std::vector<CloudData::CLOUD_PTR> sharp;
-        std::vector<CloudData::CLOUD_PTR> flat;
+        std::vector<CloudDataXYZI::CLOUD_PTR> sharp;
+        std::vector<CloudDataXYZI::CLOUD_PTR> flat;
     } tiles_;
 
     struct {
@@ -134,7 +134,7 @@ private:
     ///@brief odometry frame position to tile index (x, y, z)
     bool IsValidIndex(const Index& index);
     Index GetTileIndex(const Eigen::Vector3d &t);
-    Index GetTileIndex(const CloudData::POINT &point);
+    Index GetTileIndex(const CloudDataXYZI::POINT &point);
 
     ///@brief tile index (x, y, z) to access id
     int GetTileId(const Index& index);
@@ -159,14 +159,14 @@ private:
 
     bool ProjectToMapFrame(
         const Eigen::Quaterniond& q, const Eigen::Vector3d& t,
-        const CloudData::CLOUD_PTR& source,
-        CloudData::CLOUD_PTR& target
+        const CloudDataXYZI::CLOUD_PTR& source,
+        CloudDataXYZI::CLOUD_PTR& target
     );
 
     bool RegisterFeaturePoints(
-        const CloudData::CLOUD_PTR points, 
+        const CloudDataXYZI::CLOUD_PTR points, 
         const Eigen::Quaterniond& q, const Eigen::Vector3d& t,
-        std::vector<CloudData::CLOUD_PTR> &tiles,
+        std::vector<CloudDataXYZI::CLOUD_PTR> &tiles,
         std::set<size_t>& recently_accessed
     );
 };

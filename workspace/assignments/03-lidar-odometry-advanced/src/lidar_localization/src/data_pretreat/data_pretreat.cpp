@@ -52,7 +52,7 @@ bool DataPretreat::InitParam(const YAML::Node& config_node) {
 }
 
 bool DataPretreat::InitFilters(const YAML::Node& config_node) {
-    surf_less_flat_filter_ptr_ = std::make_unique<pcl::VoxelGrid<CloudData::POINT>>();
+    surf_less_flat_filter_ptr_ = std::make_unique<pcl::VoxelGrid<CloudDataXYZI::POINT>>();
 
     float leaf_size_x = config_node["surf_less_flat"]["leaf_size"][0].as<float>();
     float leaf_size_y = config_node["surf_less_flat"]["leaf_size"][1].as<float>();
@@ -64,19 +64,19 @@ bool DataPretreat::InitFilters(const YAML::Node& config_node) {
 }
 
 bool DataPretreat::Update(
-    const CloudData& input_cloud, 
-    CloudData::CLOUD_PTR &output_cloud,
-    CloudData::CLOUD_PTR &corner_sharp,
-    CloudData::CLOUD_PTR &corner_less_sharp,
-    CloudData::CLOUD_PTR &surf_flat,
-    CloudData::CLOUD_PTR &surf_less_flat
+    const CloudDataXYZ& input_cloud, 
+    CloudDataXYZI::CLOUD_PTR &output_cloud,
+    CloudDataXYZI::CLOUD_PTR &corner_sharp,
+    CloudDataXYZI::CLOUD_PTR &corner_less_sharp,
+    CloudDataXYZI::CLOUD_PTR &surf_flat,
+    CloudDataXYZI::CLOUD_PTR &surf_less_flat
 ) {
     // filter input point cloud:
-    CloudData::CLOUD filtered_cloud;
+    CloudDataXYZ::CLOUD filtered_cloud;
     FilterByRange(*input_cloud.cloud_ptr, filtered_cloud);
 
     // sort point cloud by scan:
-    output_cloud.reset(new CloudData::CLOUD());
+    output_cloud.reset(new CloudDataXYZI::CLOUD());
     SortPointCloudByScan(filtered_cloud, *output_cloud);
 
     // get feature points:
@@ -86,8 +86,8 @@ bool DataPretreat::Update(
 }
 
 bool DataPretreat::FilterByRange(
-    const CloudData::CLOUD &input_cloud, 
-    CloudData::CLOUD &output_cloud
+    const CloudDataXYZ::CLOUD &input_cloud, 
+    CloudDataXYZ::CLOUD &output_cloud
 ) {
     // first drop all NaNs:
     std::vector<int> indices;
@@ -159,7 +159,7 @@ bool DataPretreat::GetScanId(const float &angle, int &scan_id) {
     return true;
 }
 
-float DataPretreat::GetCurvature(const CloudData::CLOUD &cloud, int point_index) {
+float DataPretreat::GetCurvature(const CloudDataXYZI::CLOUD &cloud, int point_index) {
     Eigen::Vector3f d = Eigen::Vector3f::Zero();
 
     for (int i = -config_.neighborhood_size; i <= config_.neighborhood_size; ++i) {
@@ -173,7 +173,7 @@ float DataPretreat::GetCurvature(const CloudData::CLOUD &cloud, int point_index)
     return d.squaredNorm();
 }
 
-bool DataPretreat::SortPointCloudByScan(const CloudData::CLOUD &input_cloud, CloudData::CLOUD &output_cloud) {
+bool DataPretreat::SortPointCloudByScan(const CloudDataXYZ::CLOUD &input_cloud, CloudDataXYZI::CLOUD &output_cloud) {
     // num. points:
     int input_size = input_cloud.points.size();
     // start & end measurements:
@@ -192,10 +192,10 @@ bool DataPretreat::SortPointCloudByScan(const CloudData::CLOUD &input_cloud, Clo
     }
 
     bool half_passed = false;
-    std::vector<CloudData::CLOUD> scan(config_.num_scans);
+    std::vector<CloudDataXYZI::CLOUD> scan(config_.num_scans);
     for (int i = 0; i < input_size; i++)
     {
-        CloudData::POINT point;
+        CloudDataXYZI::POINT point;
         
         point.x = input_cloud.points[i].x;
         point.y = input_cloud.points[i].y;
@@ -267,7 +267,7 @@ bool DataPretreat::SortPointCloudByScan(const CloudData::CLOUD &input_cloud, Clo
     return true;
 }
 
-bool DataPretreat::PickInNeighborhood(const CloudData::CLOUD &cloud, const int point_index, const float thresh) {
+bool DataPretreat::PickInNeighborhood(const CloudDataXYZI::CLOUD &cloud, const int point_index, const float thresh) {
     // forward:
     for (int i = 1; i <= config_.neighborhood_size; ++i)
     {
@@ -307,23 +307,23 @@ bool DataPretreat::PickInNeighborhood(const CloudData::CLOUD &cloud, const int p
 }
 
 bool DataPretreat::GetFeaturePoints(
-    const CloudData::CLOUD &cloud, 
-    CloudData::CLOUD_PTR &corner_sharp,
-    CloudData::CLOUD_PTR &corner_less_sharp,
-    CloudData::CLOUD_PTR &surf_flat,
-    CloudData::CLOUD_PTR &surf_less_flat
+    const CloudDataXYZI::CLOUD &cloud, 
+    CloudDataXYZI::CLOUD_PTR &corner_sharp,
+    CloudDataXYZI::CLOUD_PTR &corner_less_sharp,
+    CloudDataXYZI::CLOUD_PTR &surf_flat,
+    CloudDataXYZI::CLOUD_PTR &surf_less_flat
 ) {
-    corner_sharp.reset(new CloudData::CLOUD());
-    corner_less_sharp.reset(new CloudData::CLOUD());
-    surf_flat.reset(new CloudData::CLOUD());
-    surf_less_flat.reset(new CloudData::CLOUD());
+    corner_sharp.reset(new CloudDataXYZI::CLOUD());
+    corner_less_sharp.reset(new CloudDataXYZI::CLOUD());
+    surf_flat.reset(new CloudDataXYZI::CLOUD());
+    surf_less_flat.reset(new CloudDataXYZI::CLOUD());
 
     for (int i = 0; i < config_.num_scans; ++i)
     {
         if( index_.scan.end[i] - index_.scan.start[i] < config_.num_sectors)
             continue;
 
-        CloudData::CLOUD_PTR surf_less_flat_scan_ptr(new CloudData::CLOUD());
+        CloudDataXYZI::CLOUD_PTR surf_less_flat_scan_ptr(new CloudDataXYZI::CLOUD());
         for (int j = 0; j < config_.num_sectors; ++j)
         {
             int sector_start = index_.scan.start[i] + j * (index_.scan.end[i] - index_.scan.start[i]) / config_.num_sectors; 
@@ -402,7 +402,7 @@ bool DataPretreat::GetFeaturePoints(
 
         surf_less_flat_filter_ptr_->setInputCloud(surf_less_flat_scan_ptr);
 
-        CloudData::CLOUD surf_less_flat_scan_downsampled;
+        CloudDataXYZI::CLOUD surf_less_flat_scan_downsampled;
         surf_less_flat_filter_ptr_->filter(surf_less_flat_scan_downsampled);
 
         *surf_less_flat += surf_less_flat_scan_downsampled;

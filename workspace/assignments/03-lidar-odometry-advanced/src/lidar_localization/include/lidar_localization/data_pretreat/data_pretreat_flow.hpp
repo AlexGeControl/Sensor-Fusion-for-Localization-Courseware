@@ -51,9 +51,9 @@ class DataPretreatFlow {
     std::unique_ptr<TFListener> lidar_to_imu_ptr_{nullptr};
     Eigen::Matrix4f lidar_to_imu_ = Eigen::Matrix4f::Identity();
 
-    std::unique_ptr<CloudSubscriber> cloud_sub_ptr_{nullptr};
-    std::deque<CloudData> cloud_data_buff_;
-    CloudData current_cloud_data_;
+    std::unique_ptr<CloudSubscriber<CloudDataXYZ>> cloud_sub_ptr_{nullptr};
+    std::deque<CloudDataXYZ> cloud_data_buff_;
+    CloudDataXYZ current_cloud_data_;
 
     // motion compensator:
     std::unique_ptr<DistortionAdjust> motion_compensator_ptr_;
@@ -61,17 +61,17 @@ class DataPretreatFlow {
     // scan registration implementation:
     std::unique_ptr<DataPretreat> data_pretreat_ptr_{nullptr};
     std::unique_ptr<CloudPublisher> filtered_cloud_pub_ptr_{nullptr};
-    CloudData::CLOUD_PTR filtered_cloud_data_;
+    CloudDataXYZI::CLOUD_PTR filtered_cloud_data_;
 
     // outputs: registered scans
     std::unique_ptr<CloudPublisher> corner_points_sharp_pub_ptr_{nullptr};
-    CloudData::CLOUD_PTR corner_sharp_;
+    CloudDataXYZI::CLOUD_PTR corner_sharp_;
     std::unique_ptr<CloudPublisher> corner_points_less_sharp_pub_ptr_{nullptr};
-    CloudData::CLOUD_PTR corner_less_sharp_;
+    CloudDataXYZI::CLOUD_PTR corner_less_sharp_;
     std::unique_ptr<CloudPublisher> surf_points_flat_pub_ptr_{nullptr};
-    CloudData::CLOUD_PTR surf_flat_;
+    CloudDataXYZI::CLOUD_PTR surf_flat_;
     std::unique_ptr<CloudPublisher> surf_points_less_flat_pub_ptr_{nullptr};
-    CloudData::CLOUD_PTR surf_less_flat_;
+    CloudDataXYZI::CLOUD_PTR surf_less_flat_;
     std::unique_ptr<CloudPublisher> removed_points_pub_ptr_{nullptr};
 };
 

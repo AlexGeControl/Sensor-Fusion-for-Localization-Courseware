@@ -36,31 +36,31 @@ bool ScanScanRegistrationFlow::InitParam(const YAML::Node& config_node) {
 }
 
 bool ScanScanRegistrationFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node) {
-    filtered_cloud_sub_ptr_ = std::make_unique<CloudSubscriber>(
+    filtered_cloud_sub_ptr_ = std::make_unique<CloudSubscriber<CloudDataXYZI>>(
         nh, 
         config_node["filtered"]["topic_name"].as<std::string>(), 
         config_node["filtered"]["queue_size"].as<int>()
     );
 
-    corner_points_sharp_sub_ptr_ = std::make_unique<CloudSubscriber>(
+    corner_points_sharp_sub_ptr_ = std::make_unique<CloudSubscriber<CloudDataXYZI>>(
         nh, 
         config_node["sharp"]["topic_name"].as<std::string>(), 
         config_node["sharp"]["queue_size"].as<int>()
     );
 
-    corner_points_less_sharp_sub_ptr_ = std::make_unique<CloudSubscriber>(
+    corner_points_less_sharp_sub_ptr_ = std::make_unique<CloudSubscriber<CloudDataXYZI>>(
         nh, 
         config_node["less_sharp"]["topic_name"].as<std::string>(), 
         config_node["less_sharp"]["queue_size"].as<int>()
     );
 
-    surf_points_flat_sub_ptr_ = std::make_unique<CloudSubscriber>(
+    surf_points_flat_sub_ptr_ = std::make_unique<CloudSubscriber<CloudDataXYZI>>(
         nh, 
         config_node["flat"]["topic_name"].as<std::string>(), 
         config_node["flat"]["queue_size"].as<int>()
     );
 
-    surf_points_less_flat_sub_ptr_ = std::make_unique<CloudSubscriber>(
+    surf_points_less_flat_sub_ptr_ = std::make_unique<CloudSubscriber<CloudDataXYZI>>(
         nh, 
         config_node["less_flat"]["topic_name"].as<std::string>(), 
         config_node["less_flat"]["queue_size"].as<int>()

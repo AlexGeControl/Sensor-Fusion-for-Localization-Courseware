@@ -10,14 +10,15 @@
 #include <pcl/point_cloud.h>
 
 namespace lidar_localization {
-class CloudData {
+
+class CloudDataXYZ {
   public:
-    using POINT = pcl::PointXYZI;
+    using POINT = pcl::PointXYZ;
     using CLOUD = pcl::PointCloud<POINT>;
     using CLOUD_PTR = CLOUD::Ptr;
 
   public:
-    CloudData()
+    CloudDataXYZ()
       :cloud_ptr(new CLOUD()) {
     }
 
@@ -25,6 +26,23 @@ class CloudData {
     double time = 0.0;
     CLOUD_PTR cloud_ptr;
 };
+
+class CloudDataXYZI {
+  public:
+    using POINT = pcl::PointXYZI;
+    using CLOUD = pcl::PointCloud<POINT>;
+    using CLOUD_PTR = CLOUD::Ptr;
+
+  public:
+    CloudDataXYZI()
+      :cloud_ptr(new CLOUD()) {
+    }
+
+  public:
+    double time = 0.0;
+    CLOUD_PTR cloud_ptr;
+};
+
 }
 
 #endif

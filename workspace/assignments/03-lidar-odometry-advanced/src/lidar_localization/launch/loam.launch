@@ -12,7 +12,7 @@
     <param name="mapping_plane_resolution" type="double" value="0.8"/>
 
     <!-- extract line & plane feature points -->
-    <node pkg="lidar_localization" type="aloam_data_pretreat_node" name="aloam_data_pretreat_node" output="screen"/>
+    <node pkg="lidar_localization" type="data_pretreat_node" name="data_pretreat_node" output="screen"/>
     
     <!-- scan-scan registration -->
     <node pkg="lidar_localization" type="scan_scan_registration_node" name="scan_scan_registration_node" output="screen" />

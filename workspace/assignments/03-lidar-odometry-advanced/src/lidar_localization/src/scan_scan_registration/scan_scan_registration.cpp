@@ -53,13 +53,13 @@ bool ScanScanRegistration::InitParam(const YAML::Node& config_node) {
 }
 
 bool ScanScanRegistration::InitKdTrees(void) {
-    kdtree_.corner.reset(new pcl::KdTreeFLANN<CloudData::POINT>());
-    kdtree_.surface.reset(new pcl::KdTreeFLANN<CloudData::POINT>());
+    kdtree_.corner.reset(new pcl::KdTreeFLANN<CloudDataXYZI::POINT>());
+    kdtree_.surface.reset(new pcl::KdTreeFLANN<CloudDataXYZI::POINT>());
 
     return true;
 }
 
-bool ScanScanRegistration::TransformToStart(const CloudData::POINT &input, CloudData::POINT &output) {
+bool ScanScanRegistration::TransformToStart(const CloudDataXYZI::POINT &input, CloudDataXYZI::POINT &output) {
     // interpolation ratio
     // double ratio = (input.intensity - int(input.intensity)) / config_.scan_period;
     double ratio = 1.0;
@@ -78,13 +78,13 @@ bool ScanScanRegistration::TransformToStart(const CloudData::POINT &input, Cloud
 }
 
 bool ScanScanRegistration::AssociateCornerPoints(
-    const CloudData::CLOUD &corner_sharp,
+    const CloudDataXYZI::CLOUD &corner_sharp,
     std::vector<CornerPointAssociation> &corner_point_associations
 ) {
     // find correspondence for corner features:
     const int num_query_points = corner_sharp.points.size();
 
-    CloudData::POINT query_point;
+    CloudDataXYZI::POINT query_point;
     std::vector<int> result_indices;
     std::vector<float> result_squared_distances;
     
@@ -107,7 +107,7 @@ bool ScanScanRegistration::AssociateCornerPoints(
             corner_point_association.associated_x_index = result_indices[0];
 
             // search the second associated point in nearby scans:
-            auto get_scan_id = [](const CloudData::POINT &point) { return static_cast<int>(point.intensity); };
+            auto get_scan_id = [](const CloudDataXYZI::POINT &point) { return static_cast<int>(point.intensity); };
 
             int query_scan_id = get_scan_id(corner_sharp.points[corner_point_association.query_index]);
 
@@ -185,12 +185,12 @@ bool ScanScanRegistration::AssociateCornerPoints(
 }
 
 bool ScanScanRegistration::AssociateSurfacePoints(
-    const CloudData::CLOUD &surf_flat,
+    const CloudDataXYZI::CLOUD &surf_flat,
     std::vector<SurfacePointAssociation> &surface_point_associations
 ) {
     const int num_query_points = surf_flat.points.size();
 
-    CloudData::POINT query_point;
+    CloudDataXYZI::POINT query_point;
     std::vector<int> result_indices;
     std::vector<float> result_squared_distances;
     
@@ -213,7 +213,7 @@ bool ScanScanRegistration::AssociateSurfacePoints(
             surface_point_association.associated_x_index = result_indices[0];
 
             // search the second & third associated point in nearby scans:
-            auto get_scan_id = [](const CloudData::POINT &point) { return static_cast<int>(point.intensity); };
+            auto get_scan_id = [](const CloudDataXYZI::POINT &point) { return static_cast<int>(point.intensity); };
 
             int query_scan_id = get_scan_id(surf_flat.points[surface_point_association.query_index]);
 
@@ -297,7 +297,7 @@ bool ScanScanRegistration::AssociateSurfacePoints(
 }
 
 int ScanScanRegistration::AddEdgeFactors(
-    const CloudData::CLOUD &corner_sharp,
+    const CloudDataXYZI::CLOUD &corner_sharp,
     const std::vector<CornerPointAssociation> &corner_point_associations,
     CeresALOAMRegistration &aloam_registration
 ) {
@@ -335,7 +335,7 @@ int ScanScanRegistration::AddEdgeFactors(
 }
 
 int ScanScanRegistration::AddPlaneFactors(
-    const CloudData::CLOUD &surf_flat,
+    const CloudDataXYZI::CLOUD &surf_flat,
     const std::vector<SurfacePointAssociation> &surface_point_associations,
     CeresALOAMRegistration &aloam_registration
 ) {
@@ -379,8 +379,8 @@ int ScanScanRegistration::AddPlaneFactors(
 }
 
 bool ScanScanRegistration::SetTargetPoints(
-    const CloudData::CLOUD_PTR &corner_less_sharp_ptr,
-    const CloudData::CLOUD_PTR &surf_less_flat_ptr
+    const CloudDataXYZI::CLOUD_PTR &corner_less_sharp_ptr,
+    const CloudDataXYZI::CLOUD_PTR &surf_less_flat_ptr
 ) {
     kdtree_.candidate_corner_ptr = corner_less_sharp_ptr;
     kdtree_.corner->setInputCloud(kdtree_.candidate_corner_ptr);
@@ -406,10 +406,10 @@ bool ScanScanRegistration::UpdateOdometry(Eigen::Matrix4f& lidar_odometry) {
 }
 
 bool ScanScanRegistration::Update(
-    CloudData::CLOUD_PTR corner_sharp,
-    CloudData::CLOUD_PTR corner_less_sharp,
-    CloudData::CLOUD_PTR surf_flat,
-    CloudData::CLOUD_PTR surf_less_flat,
+    CloudDataXYZI::CLOUD_PTR corner_sharp,
+    CloudDataXYZI::CLOUD_PTR corner_less_sharp,
+    CloudDataXYZI::CLOUD_PTR surf_flat,
+    CloudDataXYZI::CLOUD_PTR surf_less_flat,
     Eigen::Matrix4f& lidar_odometry
 ) {
     static int count{0};

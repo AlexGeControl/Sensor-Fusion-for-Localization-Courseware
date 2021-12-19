@@ -23,11 +23,11 @@ DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh) {
     InitMotionCompensator();
     data_pretreat_ptr_ = std::make_unique<DataPretreat>();
 
-    filtered_cloud_data_.reset(new CloudData::CLOUD());
-    corner_sharp_.reset(new CloudData::CLOUD());
-    corner_less_sharp_.reset(new CloudData::CLOUD());
-    surf_flat_.reset(new CloudData::CLOUD());
-    surf_less_flat_.reset(new CloudData::CLOUD());
+    filtered_cloud_data_.reset(new CloudDataXYZI::CLOUD());
+    corner_sharp_.reset(new CloudDataXYZI::CLOUD());
+    corner_less_sharp_.reset(new CloudDataXYZI::CLOUD());
+    surf_flat_.reset(new CloudDataXYZI::CLOUD());
+    surf_less_flat_.reset(new CloudDataXYZI::CLOUD());
 
     // publishers of registered scans:
     InitPublishers(nh, config_node["data_pretreat"]["publisher"]);
@@ -46,7 +46,7 @@ bool DataPretreatFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& co
         config_node["tf"]["child_frame_id"].as<std::string>()
     );
 
-    cloud_sub_ptr_ = std::make_unique<CloudSubscriber>(
+    cloud_sub_ptr_ = std::make_unique<CloudSubscriber<CloudDataXYZ>>(
         nh, 
         config_node["velodyne"]["topic_name"].as<std::string>(), 
         config_node["velodyne"]["queue_size"].as<int>()
@@ -190,11 +190,13 @@ bool DataPretreatFlow::ValidData() {
 }
 
 bool DataPretreatFlow::UpdateData(void) {
-    // first apply motion compensation:
-    current_velocity_data_.TransformCoordinate(lidar_to_imu_);
+    //
+    // TO-BE-EVALUATED-BY-MAINTAINER: first apply motion compensation:
+    // 
+    // current_velocity_data_.TransformCoordinate(lidar_to_imu_);
 
-    motion_compensator_ptr_->SetMotionInfo(0.1, current_velocity_data_);
-    motion_compensator_ptr_->AdjustCloud(current_cloud_data_.cloud_ptr, current_cloud_data_.cloud_ptr);
+    // motion_compensator_ptr_->SetMotionInfo(0.1, current_velocity_data_);
+    // motion_compensator_ptr_->AdjustCloud(current_cloud_data_.cloud_ptr, current_cloud_data_.cloud_ptr);
 
     // extract scan lines:
     data_pretreat_ptr_->Update(
