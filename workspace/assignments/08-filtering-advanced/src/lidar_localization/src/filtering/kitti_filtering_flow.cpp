@@ -69,7 +69,7 @@ bool KITTIFilteringFlow::Run() {
                 InitLocalization();
             }
         } else {
-            // TODO: handle timestamp chaos in an more elegant way
+            // handle timestamp chaos in an more elegant way
             if (  HasLidarData() && ValidLidarData() ) {
                 if ( HasIMUData() ) {
                     while (

@@ -54,7 +54,7 @@ bool GNSSINSSimFilteringFlow::Run() {
                 InitLocalization();
             }
         } else {
-            // TODO: handle timestamp chaos in an more elegant way
+            // handle timestamp chaos in an more elegant way
             if (  HasPosVelMagData() && ValidPosVelMagData() ) {
                 if ( HasIMUData() ) {
                     while (
