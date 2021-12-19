@@ -12,6 +12,26 @@
 
 ## Getting Started
 
+### 环境检查: 确保Git Repo与使用的Docker Image均为最新
+
+首先, 请确保选择了正确的branch **05-imu-calib**:
+
+<img src="doc/images/branch-check.png" alt="Branch Check" width="100%">
+
+执行以下命令，确保所使用的Git Repo与Docker Image均为最新:
+
+```bash
+# update git repo:
+git pull
+#
+# update docker image:
+#
+# 1. first, login to Sensor Fusion registry -- default password is shenlansf20210122:
+docker login --username=937570601@qq.com registry.cn-shanghai.aliyuncs.com
+# 2. then download images:
+docker pull registry.cn-shanghai.aliyuncs.com/shenlanxueyuan/sensor-fusion-workspace:bionic-cpu-vnc
+```
+
 ### 及格要求: 完成雅克比推导, 且结果正确
 
 推就完了! Good Luck!
