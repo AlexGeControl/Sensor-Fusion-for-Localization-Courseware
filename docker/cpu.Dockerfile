@@ -208,8 +208,11 @@ RUN wget https://nchc.dl.sourceforge.net/project/geographiclib/distrib/Geographi
     # install:
     make install
 
-# install sophus -- latest:
+# install sophus -- commit id 49a7e1286910019f74fb4f0bb3e213c909f8e1b7:
 RUN git clone https://github.com/strasdat/Sophus.git -o Sophus && cd Sophus && \
+    # align version:
+    git fetch --all --tags && git checkout 49a7e1286910019f74fb4f0bb3e213c909f8e1b7 && \
+    # start to build
     mkdir build && cd build && \
     # config:
     cmake .. && \
@@ -218,10 +221,16 @@ RUN git clone https://github.com/strasdat/Sophus.git -o Sophus && cd Sophus && \
     # install:
     make install
 
-# install ceres -- latest:
-RUN git clone https://github.com/ceres-solver/ceres-solver.git -o ceres-solver && \
+# install ceres -- commit id c2fab6502e5a341ff644c2bb2c5171ebd882b2d6:
+RUN git clone https://github.com/ceres-solver/ceres-solver.git -o ceres-solver  && cd ceres-solver && \
+    # align version:
+    git fetch --all --tags && git checkout c2fab6502e5a341ff644c2bb2c5171ebd882b2d6 && cd /tmp/installers/ && \
+    # config:
     mkdir ceres-bin && cd ceres-bin && cmake ../ceres-solver && \
-    make -j8 && make install
+    # build:
+    make -j8 && \
+    # install:
+    make install
 
 # install g2o -- release 20200410_git:
 RUN git clone https://github.com/RainerKuemmerle/g2o.git -o g2o && cd g2o && \

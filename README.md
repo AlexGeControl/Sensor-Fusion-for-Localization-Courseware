@@ -19,9 +19,9 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 
 * **State Estimation for Robotics** [Reference Book](https://www.amazon.com/State-Estimation-Robotics-Timothy-Barfoot/dp/1107159393/ref=sr_1_1?crid=3A1AU9FS3OA4U&keywords=state+estimation+for+robotics&qid=1639835747&sprefix=state+estimation+for+robotic%2Caps%2C501&sr=8-1)
 * **Modern C++ (11 and above)** [Reference Book](https://www.amazon.com/Effective-Modern-Specific-Ways-Improve/dp/1491903996/ref=sr_1_1?crid=3FBSOVE5S7DG2&keywords=effective+modern+c%2B%2B&qid=1639809190&sprefix=effective+modern+c%2B%2Caps%2C573&sr=8-1)
-* Python
-* **ROS**
-* **Git/GitHub, Markdown**与LaTex
+* Python [Reference Book](https://www.amazon.com/Fluent-Python-Concise-Effective-Programming/dp/1491946008/ref=sr_1_2?crid=1N4TWSFVKTSUC&keywords=fluent+python+2nd+edition&qid=1639911762&sprefix=fluent+python%27%2Caps%2C332&sr=8-2)
+* **ROS** [深蓝学院参考课程](https://www.shenlanxueyuan.com/course/364)
+* **Git/GitHub, Markdown**与LaTeX [Coursera参考课程](https://www.coursera.org/professional-certificates/google-it-automation#courses)
 
 ---
 
@@ -65,6 +65,22 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 
 本课程推荐使用配套的Docker环境[点击链接进入](docker/README.md)完成课程学习. Docker提供了一个轻量级的标准化开发环境, 能够避免本地已有环境的差异导致的奇怪问题, 避免环境配置调试的巨额时间浪费.
 
+---
+
+### JFYI: Dependency Overview
+
+* **C++**
+  * **Google Protobuf**, [Click Here](https://github.com/google/protobuf.git), **branch 3.14.x**
+  * **GeographicLib**, [Click Here](https://nchc.dl.sourceforge.net/project/geographiclib/distrib/GeographicLib-1.50.1.zip), **version 1.50.1**
+  * **GeographicLib**, [Click Here](https://nchc.dl.sourceforge.net/project/geographiclib/distrib/GeographicLib-1.50.1.zip), **version 1.50.1**
+  * **Sophus**, [Click Here](https://github.com/strasdat/Sophus.git), **commit id 49a7e1286910019f74fb4f0bb3e213c909f8e1b7**
+  * **Google Ceres**, [Click Here](https://github.com/ceres-solver/ceres-solver.git), **commit id c2fab6502e5a341ff644c2bb2c5171ebd882b2d6**
+  * **G2O**, [Click Here](https://github.com/RainerKuemmerle/g2o.git), **tag 20200410_git**
+  * **GTSAM**, [Click Here](https://github.com/borglab/gtsam.git), **tag 4.0.3**
+
+* **Python**
+  * **kitti2bag**, [Click Here](https://pypi.org/project/kitti2bag/), **1.5**
+  * **evo**, [Click Here](https://pypi.org/project/evo/), **1.12.0**
 ---
 
 ### Workspace
