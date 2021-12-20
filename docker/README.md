@@ -51,9 +51,9 @@
 **注意**: 执行第1条命令时，**需要输入密码!!!需要输入密码!!!需要输入密码!!!**, 密码请看**命令上方注释行的绿字!!!命令上方注释行的绿字!!!命令上方注释行的绿字!!!***
 
 ```bash
-# login to Sensor Fusion registry -- default password -- shenlansf20210122:
+# 1. login to Alibaba Cloud Docker registry -- default password is shenlansf20210122:
 docker login --username=937570601@qq.com registry.cn-shanghai.aliyuncs.com
-# download images:
+# 2. then download images:
 docker pull registry.cn-shanghai.aliyuncs.com/shenlanxueyuan/sensor-fusion-workspace:bionic-cpu-vnc
 ```
 
@@ -61,7 +61,7 @@ docker pull registry.cn-shanghai.aliyuncs.com/shenlanxueyuan/sensor-fusion-works
 
 ### 启动实例
 
-在当前Repo`根目录`下, 启动Terminal, 执行命令, 启动Docker Workspace:
+在当前Repo`根目录`下(即**docker-compose.yml**所在的那个文件夹), 启动Terminal, 执行命令, 启动Docker Workspace:
 
 ```bash
 docker-compose down && docker-compose up

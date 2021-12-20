@@ -25,6 +25,19 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 
 ---
 
+## Before You Start...
+
+在开始前, 请自行通过百度, 或者我推荐的[Coursera参考课程](https://www.coursera.org/professional-certificates/google-it-automation#courses), 自行学习, 熟悉以下工具的基本概念与操作. **否则你可能连这篇文档都读得稀里糊涂**
+
+1. git
+2. GitHub
+3. MarkDown语法与README.md的书写
+4. VSCode使用
+  
+当且仅当你完成上述基本工具的学习后，再继续阅读,**否则你可能连这篇文档都读得稀里糊涂**
+
+---
+
 ## Docker Env - Up & Running
 
 ### WARNING - About Environment 
@@ -58,6 +71,25 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 ### 安装Ubuntu
 
 首先请确保您可以访问**Ubuntu**开发环境. 如果没有**Ubuntu**环境, 请按照[点击链接进入](ubuntu-setup/README.md)指南, 在本地PC上安装配置**Ubuntu**环境.
+
+---
+
+### **针对国内同学** 将Ubuntu APT源换为阿里云源
+
+为了保证本地Native环境APT安装速度, 请根据[This CSDN Post](https://blog.csdn.net/zhangjiahao14/article/details/80554616), 将Ubuntu上默认的APT源切换为阿里云源.
+
+---
+
+### Fetch This Git Repo.
+
+**感谢第5期同学的分享** 如果在国内, 因DNS污染等原因, 导致GitHub访问受限, 可以通过[GitHub Proxy代理](https://ghproxy.com/)进行加速
+
+```bash
+# 1. direct clone:
+git clone https://github.com/AlexGeControl/Sensor-Fusion-for-Localization-Courseware
+# 2. use GitHub proxy for acceleration:
+git clone https://ghproxy.com/https://github.com/AlexGeControl/Sensor-Fusion-for-Localization-Courseware
+```
 
 ---
 
@@ -97,11 +129,11 @@ Maintained by **Ge Yao**, alexgecontrol@qq.com
 
 #### 安装Native Ubuntu IDE
 
-本课程推荐使用[VSCode](https://code.visualstudio.com/)进行开发. 安装VSCode之后，推荐继续安装以下VSCode Plug-Ins:
+本课程推荐使用[VSCode](https://code.visualstudio.com/)进行开发. 请按照链接，完成VSCode的安装. **安装VSCode之后，请继续安装以下VSCode Plug-Ins**:
 
-* **C/C++** by **Microsoft**
+* **C/C++** by **Microsoft**, 用于**完成作业时加速C++开发**.
 
-* **Markdown All in One** by **Yu Zhang**
+* **Markdown All in One** by **Yu Zhang**, 用于**在VSCode中查看课程中所有的README.md, (Shift+Ctrl+V)**.
 
 #### 开发, 编译与测试
 
