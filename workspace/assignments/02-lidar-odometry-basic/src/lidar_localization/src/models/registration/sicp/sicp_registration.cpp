@@ -30,10 +30,11 @@ SICPRegistration::SICPRegistration(
     params_.max_inner = node['max_inner'].as<int>();
     params_.stop = node['stop'].as<float>();
     */
+    
 }
 
 bool SICPRegistration::SetInputTarget(const CloudData::CLOUD_PTR& input_target) {
-    input_target_ = input_target;
+    input_target_ = input_target;//局部地图 点云
 
     return true;
 }
@@ -54,9 +55,35 @@ bool SICPRegistration::ScanMatch(
     // TODO: second option -- adapt existing implementation
     //
     // TODO: format inputs for SICP:
-    
     // TODO: SICP registration:
+    { // ICP registration
+        //std::cout << "SICP Registration" << std::endl;
+        
+        Eigen::Matrix3Xd X ( 3, transformed_input_source->size() ); // source, transformed
+        Eigen::Matrix3Xd Y ( 3, input_target_->size() ); // target
 
+        for(int i = 0; i < transformed_input_source->size(); i++)
+        {
+        X(0,i) = transformed_input_source->points[i].x;
+        X(1,i) = transformed_input_source->points[i].y;
+        X(2,i) = transformed_input_source->points[i].z;
+        }
+
+
+        for(int i = 0; i < input_target_->size(); i++)
+        {
+        Y(0,i) = input_target_->points[i].x;
+        Y(1,i) = input_target_->points[i].y;
+        Y(2,i) = input_target_->points[i].z;
+        }
+
+
+        // ICP::point_to_point ( X, Y ); // standard ICP
+        Eigen::Affine3d transformation = Eigen::Affine3d::Identity();
+        transformation = SICP::point_to_point ( X, Y ); // sparse ICP
+        transformation_ = transformation.cast<float>().matrix();
+
+    }
     // set output:
     result_pose = transformation_ * predict_pose;
     pcl::transformPointCloud(*input_source_, *result_cloud_ptr, result_pose);
